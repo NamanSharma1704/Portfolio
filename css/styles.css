@@ -1,0 +1,235 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #1e1e2d;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    height: 100vh;
+    background: #1e1e2d;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: #1e1e2d;
+    color: #fff;
+    position: fixed;
+    bottom: 0;
+    width: 70%;
+}
+
+.sidebar {
+    width: 144px;
+    background: #2d2d3a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    width: 100%;
+}
+
+.sidebar nav ul li {
+    margin: 1rem 0;
+    width: 100%;
+    text-align: center;
+}
+
+.sidebar nav ul li a {
+    color: #999;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Align icon and text vertically */
+    padding: 1rem 0.5rem;
+    /* Adjusted padding */
+    transition: color 0.3s;
+}
+
+.sidebar nav ul li a:hover {
+    color: #fff;
+}
+
+.content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.profile {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    object-fit: cover;
+}
+
+.profile h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.profile p {
+    font-size: 1.2rem;
+    color: #e91e63;
+    margin-bottom: 1rem;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.social-icons a {
+    color: #999;
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #fff;
+}
+
+.about {
+    width: 100%;
+    max-width: 800px;
+}
+
+.about h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #e91e63;
+}
+
+.about .info {
+    font-size: 1rem;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+.about p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.services {
+    margin-top: 2rem;
+}
+
+.services h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.service {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.service i {
+    font-size: 2rem;
+    color: #e91e63;
+    margin-right: 1rem;
+}
+
+.service h4 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.service p {
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 1rem 0;
+    }
+
+    .sidebar nav ul {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .sidebar nav ul li {
+        margin: 0;
+    }
+
+    .content {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .profile h1 {
+        font-size: 2rem;
+    }
+
+    .about h2,
+    .services h3 {
+        font-size: 2rem;
+    }
+
+    .service i {
+        font-size: 1.5rem;
+    }
+
+    .service h4 {
+        font-size: 1.2rem;
+    }
+}
