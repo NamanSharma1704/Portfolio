@@ -1,5 +1,4 @@
 /* Define color variables */
-
 :root {
     --primary-bg: #1e1e2d;
     --secondary-bg: #2d2d3a;
@@ -307,8 +306,6 @@ form button:hover {
         margin-left: 0;
         width: 100%;
     }
-
-
 }
 
 @media (max-width: 480px) {

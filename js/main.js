@@ -1,17 +1,24 @@
-// main.js
+document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.sidebar nav ul li a');
+    const currentPath = window.location.pathname.split('/').pop();
 
-// Smooth scrolling for internal links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetElement = document.querySelector(this.getAttribute('href'));
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth'
-            });
-            console.log(`Scrolling to: ${this.getAttribute('href')}`);
-        } else {
-            console.warn(`Target element not found: ${this.getAttribute('href')}`);
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
         }
+
+        link.addEventListener('click', (e) => {
+            const target = link.getAttribute('href');
+            if (target.startsWith('#')) {
+                // Internal link - prevent default and scroll smoothly
+                e.preventDefault();
+                document.querySelector(target).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            } else {
+                // External link - allow default behavior (navigation)
+                return true;
+            }
+        });
     });
 });
