@@ -72,7 +72,7 @@ export default function ContactForm({ isOpen, setIsOpen }: ContactFormProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md"
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-black/60 backdrop-blur-xl"
                     onClick={() => !isSubmitting && !isSuccess && setIsOpen(false)}
                     role="dialog"
                     aria-modal="true"
@@ -83,7 +83,7 @@ export default function ContactForm({ isOpen, setIsOpen }: ContactFormProps) {
                         animate={{ y: 0, scale: 1 }}
                         exit={{ y: 20, scale: 0.95 }}
                         transition={{ duration: 0.4, ease }}
-                        className="bg-[#0A0A0A] border border-[#222] w-full max-w-lg overflow-hidden flex flex-col relative rounded-xl shadow-2xl"
+                        className="bg-[#0A0A0A]/90 backdrop-blur-2xl border border-white/10 w-full max-w-lg overflow-hidden flex flex-col relative rounded-xl shadow-[0_0_80px_-20px_rgba(193,166,97,0.15)] shadow-black/50"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between p-6 border-b border-[#222]">

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Inter, Playfair_Display } from 'next/font/google';
 import { SITE_URL } from '../lib/constants';
 import './globals.css';
+import Noise from './components/Noise';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${playfair.variable} ${inter.className} overflow-hidden`}>
+                <Noise />
                 {children}
             </body>
         </html>

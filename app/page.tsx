@@ -26,6 +26,7 @@ import { ease, NAV_LINKS } from '../lib/constants';
 import LoadingScreen from './components/LoadingScreen';
 import MediaModal from './components/MediaModal';
 import ContactForm from './components/ContactForm';
+import SpotlightCard from './components/SpotlightCard';
 
 // Dynamically import the 3D background - client-only, no SSR
 const Background3D = dynamic(() => import('./components/Background3D'), {
@@ -46,6 +47,9 @@ export default function App() {
     const { scrollYProgress } = useScroll();
     const yHero = useTransform(scrollYProgress, [0, 1], [0, 180]);
     const opHero = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+    
+    // Slight parallax for section headers
+    const ySection = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
     const [mounted, setMounted] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -71,7 +75,7 @@ export default function App() {
 
             {/* ─── NAV ─── */}
             <nav
-                className="fixed top-0 w-full z-50 px-8 py-5 backdrop-blur-md bg-black/30 border-b border-white/5"
+                className="fixed top-0 w-full z-50 px-8 py-5 backdrop-blur-xl bg-black/40 border-b border-white/10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]"
                 style={{ transform: 'translateZ(0)', willChange: 'transform' }}
             >
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -164,17 +168,17 @@ export default function App() {
 
                     {/* Headline */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, delay: 0.1, ease }}
+                        initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{ duration: 1.2, delay: 0.1, ease }}
                     >
                         <p className="text-xs md:text-sm tracking-[0.25em] uppercase text-[#8A8680] mb-6">
-                            Hi, I am <span className="text-[#C1A661] font-semibold">{RESUME_DATA.name}</span>
+                            Hi, I am <span className="bg-gradient-to-r from-[#C1A661] to-[#e5ce8a] bg-clip-text text-transparent font-semibold">{RESUME_DATA.name}</span>
                         </p>
                         <h1 className="font-playfair text-7xl md:text-8xl lg:text-[10rem] font-bold leading-none tracking-tight text-white mb-2">
                             {RESUME_DATA.headline1}
                         </h1>
-                        <h2 className="font-playfair text-7xl md:text-8xl lg:text-[10rem] font-bold leading-none tracking-tight text-[#C1A661] italic mb-10">
+                        <h2 className="font-playfair text-7xl md:text-8xl lg:text-[10rem] font-bold leading-none tracking-tight bg-gradient-to-r from-[#C1A661] via-[#d4b96e] to-[#C1A661] bg-clip-text text-transparent italic mb-10 pr-4 pb-2">
                             {RESUME_DATA.headline2}
                         </h2>
                     </motion.div>
@@ -215,22 +219,22 @@ export default function App() {
             </section>
 
             {/* ─── PHILOSOPHY ─── */}
-            <section id="philosophy" className="py-28 px-8 bg-[#111111] border-t border-[#222]">
+            <section id="philosophy" className="py-28 px-8 bg-[#111111] border-t border-[#222] relative z-10">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
                         viewport={{ once: true, margin: '-100px' }}
                         transition={{ duration: 0.9, ease }}
                         className="grid lg:grid-cols-12 gap-16 mb-20"
                     >
-                        <div className="lg:col-span-4">
+                        <motion.div className="lg:col-span-4" style={{ y: ySection }}>
                             <p className="text-xs tracking-[0.25em] uppercase text-[#C1A661] mb-3">
                                 Core Philosophy
                             </p>
                             <div className="w-8 h-px bg-[#C1A661]/40" />
-                        </div>
-                        <div className="lg:col-span-8">
+                        </motion.div>
+                        <motion.div className="lg:col-span-8" style={{ y: ySection }}>
                             <h2 className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white mb-8">
                                 &ldquo;Great digital products are built at the{' '}
                                 <span className="text-[#C1A661] italic">
@@ -239,7 +243,7 @@ export default function App() {
                                 &rdquo;
                             </h2>
                             <p className="text-lg text-[#8A8680] leading-relaxed">{RESUME_DATA.about}</p>
-                        </div>
+                        </motion.div>
                     </motion.div>
 
                     {/* Metrics strip */}
@@ -263,14 +267,15 @@ export default function App() {
             </section>
 
             {/* ─── VALUES ─── */}
-            <section className="py-28 px-8 border-t border-[#222]">
+            <section className="py-28 px-8 border-t border-[#222] bg-[#0A0A0A] relative z-10">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
                         viewport={{ once: true, margin: '-80px' }}
                         transition={{ duration: 0.9, ease }}
                         className="mb-14"
+                        style={{ y: ySection }}
                     >
                         <p className="text-xs tracking-[0.25em] uppercase text-[#C1A661] mb-3">How I Work</p>
                         <div className="w-8 h-px bg-[#C1A661]/40" />
@@ -301,14 +306,15 @@ export default function App() {
             </section>
 
             {/* ─── EXPERTISE ─── */}
-            <section id="expertise" className="py-28 px-8 bg-[#111111] border-t border-[#222]">
+            <section id="expertise" className="py-28 px-8 bg-[#111111] border-t border-[#222] relative z-10">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
                         viewport={{ once: true, margin: '-80px' }}
                         transition={{ duration: 0.9, ease }}
                         className="mb-14"
+                        style={{ y: ySection }}
                     >
                         <p className="text-xs tracking-[0.25em] uppercase text-[#C1A661] mb-3">
                             Areas of Expertise
@@ -409,14 +415,15 @@ export default function App() {
             </section>
 
             {/* ─── WORK ─── */}
-            <section id="work" className="py-28 px-8 border-t border-[#222]">
+            <section id="work" className="py-28 px-8 border-t border-[#222] bg-[#0A0A0A] relative z-10">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
                         viewport={{ once: true, margin: '-80px' }}
                         transition={{ duration: 0.9, ease }}
                         className="mb-14"
+                        style={{ y: ySection }}
                     >
                         <p className="text-xs tracking-[0.25em] uppercase text-[#C1A661] mb-3">
                             Selected Work
@@ -435,7 +442,7 @@ export default function App() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-6">
                             {RESUME_DATA.projects.strategic.map((p, i) => (
-                                <motion.div
+                                <SpotlightCard
                                     key={p.name}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -473,7 +480,7 @@ export default function App() {
                                             </span>
                                         ))}
                                     </div>
-                                </motion.div>
+                                </SpotlightCard>
                             ))}
                         </div>
                     </div>
@@ -489,7 +496,7 @@ export default function App() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-6">
                             {RESUME_DATA.projects.technical.map((p) => (
-                                <motion.div
+                                <SpotlightCard
                                     key={p.name}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -527,7 +534,7 @@ export default function App() {
                                             </span>
                                         ))}
                                     </div>
-                                </motion.div>
+                                </SpotlightCard>
                             ))}
                         </div>
                     </div>

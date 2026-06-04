@@ -46,7 +46,7 @@ export default function MediaModal({ selectedProject, setSelectedProject }: Medi
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md"
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-black/60 backdrop-blur-xl"
                         onClick={() => setSelectedProject(null)}
                         role="dialog"
                         aria-modal="true"
@@ -57,7 +57,7 @@ export default function MediaModal({ selectedProject, setSelectedProject }: Medi
                             animate={{ y: 0, scale: 1 }}
                             exit={{ y: 20, scale: 0.95 }}
                             transition={{ duration: 0.4, ease }}
-                            className="bg-[#0A0A0A] border border-[#222] w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col relative rounded-xl shadow-2xl"
+                            className="bg-[#0A0A0A]/90 backdrop-blur-2xl border border-white/10 w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col relative rounded-xl shadow-[0_0_80px_-20px_rgba(193,166,97,0.15)] shadow-black/50"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between p-6 border-b border-[#222]">
@@ -119,7 +119,7 @@ export default function MediaModal({ selectedProject, setSelectedProject }: Medi
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[300] flex items-center justify-center bg-black/95 p-4 sm:p-8 cursor-zoom-out"
+                        className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-3xl p-4 sm:p-8 cursor-zoom-out"
                         onClick={() => setFullscreenIndex(null)}
                         role="dialog"
                         aria-modal="true"
