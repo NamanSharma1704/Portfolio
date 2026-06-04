@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Design tokens — referenced by tailwind.config.js via var() ── */
+:root {
+  --color-bg:      #0a0a0a;
+  --color-surface: #111111;
+  --color-border:  #222222;
+  --color-text:    #f0ede8;
+  --color-muted:   #8a8680;
+  --color-gold:    #c1a661;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Utility classes used in JSX ── */
+.font-playfair {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d4b96e;
+}
+
+/* Firefox fallback */
+@supports (-moz-appearance:none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gold) var(--color-bg);
+  }
+}
