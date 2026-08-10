@@ -106,7 +106,7 @@ export const RESUME_DATA: ResumeData = {
     education: {
         degree: 'MSc International Business and Management',
         institution: 'University of Manchester',
-        period: '2024 - 2025',
+        period: '2025 - 2026',
         note: 'Focus: Digital Strategy, Cross-cultural Management, Global Markets',
     },
     contact: {
