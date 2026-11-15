@@ -5,32 +5,28 @@
   "engines": {
     "node": ">=20.x"
   },
-  "overrides": {
-    "three-mesh-bvh": "^0.8.0"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
-    "@motionone/utils": "^10.18.0",
-    "@react-three/drei": "^9.121.4",
-    "@react-three/fiber": "^9.5.0",
     "framer-motion": "^12.4.7",
-    "lucide-react": "^0.475.0",
-    "next": "15.5.12",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "three": "^0.173.0"
+    "next": "^15.5.29",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/node": "^20.17.19",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.0.0",
-    "@types/three": "^0.173.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.29",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"

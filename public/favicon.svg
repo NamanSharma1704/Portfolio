@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #f4f1ea; stroke: #dcd7ca; stroke-width: 8px; }
+      .contour { stroke: #7f2d35; opacity: 0.18; fill: none; stroke-linecap: round; }
+      .contour-accent { stroke: #7f2d35; opacity: 0.35; fill: none; stroke-linecap: round; }
+      .letter { fill: #14130f; }
+      .accent-dot { fill: #7f2d35; }
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #14130f; stroke: #2a2721; }
+        .contour { stroke: #d9867f; opacity: 0.22; }
+        .contour-accent { stroke: #d9867f; opacity: 0.45; }
+        .letter { fill: #f2efe7; }
+        .accent-dot { fill: #d9867f; }
+      }
+    </style>
+    <linearGradient id="paperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdfcf9" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ebe6db" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background tile with subtle rounded corners matching the design token r-lg -->
+  <rect class="bg" x="16" y="16" width="480" height="480" rx="96" ry="96" />
+
+  <!-- Subtle Contour Field moire arcs reflecting the hero motif -->
+  <g transform="translate(320, 180) rotate(18)">
+    <ellipse cx="0" cy="0" rx="210" ry="145" class="contour" stroke-width="3" />
+    <ellipse cx="0" cy="0" rx="175" ry="120" class="contour" stroke-width="2.5" transform="rotate(7)" />
+    <ellipse cx="0" cy="0" rx="140" ry="95" class="contour-accent" stroke-width="3" transform="rotate(14)" />
+    <ellipse cx="0" cy="0" rx="105" ry="72" class="contour" stroke-width="2.5" transform="rotate(21)" />
+    <ellipse cx="0" cy="0" rx="70" ry="48" class="contour" stroke-width="2" transform="rotate(28)" />
+  </g>
+
+  <!-- High-contrast architectural / serif 'N' letterform -->
+  <!-- Left stem with bracketed top & bottom serifs -->
+  <!-- Diagonal high-contrast stroke -->
+  <!-- Right upright with top terminal serif -->
+  <g class="letter" transform="translate(112, 106)">
+    <!-- Main Serif N Path -->
+    <!-- Top-left serif, left stem, bottom-left foot serif, main diagonal, right stem, top-right serif -->
+    <path d="
+      M 16,36 
+      L 76,36 
+      L 76,68 
+      L 58,68 
+      L 58,232 
+      L 76,232 
+      L 76,264 
+      L 6,264 
+      L 6,232 
+      L 24,232 
+      L 24,68 
+      L 6,68 
+      Z
+      
+      M 58,72 
+      L 218,252 
+      L 244,252 
+      L 244,52 
+      L 264,52 
+      L 264,36 
+      L 198,36 
+      L 198,52 
+      L 216,52 
+      L 216,212 
+      L 76,52 
+      L 58,52 
+      Z
+    " />
+  </g>
+
+  <!-- The Signature Claret Accent Dot (Live Status / Period at end of statement) -->
+  <circle class="accent-dot" cx="388" cy="358" r="22" />
+</svg>

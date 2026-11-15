@@ -31,3 +31,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# isolated production build (see distDir in next.config.js)
+/.next-prod/
+
+# local Claude desktop preview config
+/.claude/
