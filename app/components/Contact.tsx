@@ -13,7 +13,8 @@ export default function Contact() {
         <section
             id="contact"
             aria-labelledby="contact-label"
-            className="scroll-mt-24 border-t border-rule bg-paper pb-[clamp(5rem,11vw,9rem)] pt-[clamp(4rem,9vw,7rem)]"
+            tabIndex={-1}
+            className="border-t border-rule bg-paper pb-[clamp(5rem,11vw,9rem)] pt-[clamp(4rem,9vw,7rem)]"
         >
             <div className="shell">
                 <div className="flex items-baseline gap-3" data-reveal="">

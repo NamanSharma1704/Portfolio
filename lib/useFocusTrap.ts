@@ -82,7 +82,13 @@ export function useFocusTrap<T extends HTMLElement>(
 
         return () => {
             document.removeEventListener('keydown', onKeyDown, true);
-            previouslyFocused.current?.focus({ preventScroll: true });
+            // Only hand focus back if it is still inside the overlay (or was
+            // dropped to <body>). If something already moved it on purpose,
+            // such as a menu link sending focus to its section, respect that.
+            const current = document.activeElement;
+            if (!current || current === document.body || container.contains(current)) {
+                previouslyFocused.current?.focus({ preventScroll: true });
+            }
         };
     }, [active, initialFocus]);
 

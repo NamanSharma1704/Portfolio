@@ -39,7 +39,9 @@ export default function Section({
             id={id}
             // Optically asymmetric vertical padding: slightly more below than
             // above, which is what keeps a stack of sections from drifting.
-            className={`scroll-mt-24 border-t border-rule pb-[clamp(5rem,11vw,9rem)] pt-[clamp(4rem,9vw,7rem)] ${GROUNDS[ground]} ${className}`}
+            // Focusable so an anchor jump can move keyboard focus here.
+            tabIndex={-1}
+            className={`border-t border-rule pb-[clamp(5rem,11vw,9rem)] pt-[clamp(4rem,9vw,7rem)] ${GROUNDS[ground]} ${className}`}
             aria-labelledby={`${id}-label`}
         >
             <div className="shell">

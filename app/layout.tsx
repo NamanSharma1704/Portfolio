@@ -9,6 +9,9 @@ import {
     THEME_INIT_SCRIPT,
 } from '../lib/constants';
 import { IDENTITY, CONTACT, EDUCATION, EXPERIENCE } from '../data/resumeData';
+import SmoothScroll from './components/SmoothScroll';
+// Lenis's own rules first, so anything in globals.css can override them.
+import 'lenis/dist/lenis.css';
 import './globals.css';
 
 /* ---------------------------------------------------------------------------
@@ -42,6 +45,20 @@ const mono = JetBrains_Mono({
 
 // ─── METADATA ──────────────────────────────────────────────────────────────────
 
+/* Link preview image (public/og-image.png, 1200x630).
+   The version tag matters: the previous site also served /og-image.png, so
+   LinkedIn and Slack may have the old dark-and-gold card cached under that
+   address. Bump it whenever the image changes so they fetch it again.
+   og-image-dark.png sits beside it but is unused: platforms show one image
+   and do not switch with the viewer's colour scheme. */
+const SOCIAL_IMAGE = {
+    url: '/og-image.png?v=2',
+    width: 1200,
+    height: 630,
+    alt: `${IDENTITY.name}, ${IDENTITY.role}`,
+    type: 'image/png',
+};
+
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
     title: {
@@ -71,13 +88,13 @@ export const metadata: Metadata = {
         siteName: SITE_NAME,
         title: SITE_TITLE,
         description: SITE_DESCRIPTION,
-        // The image comes from app/opengraph-image.tsx (file-based metadata
-        // takes precedence over anything declared here).
+        images: [SOCIAL_IMAGE],
     },
     twitter: {
         card: 'summary_large_image',
         title: SITE_TITLE,
         description: SITE_DESCRIPTION,
+        images: [SOCIAL_IMAGE],
     },
     robots: {
         index: true,
@@ -138,7 +155,7 @@ const personSchema = {
     email: `mailto:${CONTACT.email}`,
     jobTitle: IDENTITY.role,
     description: SITE_DESCRIPTION,
-    image: `${SITE_URL}/opengraph-image`,
+    image: `${SITE_URL}/og-image.png`,
     sameAs: [CONTACT.linkedin],
     address: {
         '@type': 'PostalAddress',
@@ -189,6 +206,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </a>
                 {children}
                 <div className="grain" aria-hidden="true" />
+                <SmoothScroll />
             </body>
         </html>
     );

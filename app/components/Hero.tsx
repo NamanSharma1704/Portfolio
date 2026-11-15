@@ -18,6 +18,8 @@ export default function Hero() {
     return (
         <section
             id="top"
+            // Target of "Back to top"; focusable so focus follows the jump.
+            tabIndex={-1}
             // dvh, not vh: iOS Safari's collapsing toolbar makes 100vh taller
             // than the visible viewport, which cuts the fact strip in half.
             // Vertical spacing is height-aware (vh inside clamp) so the fact

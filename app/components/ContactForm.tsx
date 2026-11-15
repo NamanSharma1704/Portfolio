@@ -220,6 +220,8 @@ export default function ContactForm() {
                     id={fieldId('message')}
                     name="message"
                     rows={6}
+                    // Scroll the textarea, not the page, under smooth scrolling.
+                    data-lenis-prevent
                     maxLength={MESSAGE_MAX}
                     className="field resize-y"
                     placeholder="What are you working on, and where would I fit?"
