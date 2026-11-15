@@ -167,7 +167,7 @@ export const EXPERIENCE: Role[] = [
             'Ran campaigns and content across three platforms, from strategy down to the publishing calendar.',
         highlights: [
             'Managed and optimised digital marketing campaigns across Instagram, Facebook and LinkedIn',
-            'Built content strategies against company goals and ran the publishing schedule across every platform',
+            'Built content strategies against company goals and coordinated the publishing schedule across every platform',
             'Partnered with the wider team to land each campaign on schedule and inside brand guidelines',
         ],
     },
@@ -198,13 +198,13 @@ export const PROJECTS: Project[] = [
         subtitle: 'A reading tracker designed as a progression system',
         status: 'Live',
         description:
-            'A tracker for serialised web comics that treats reading as progression rather than as a list. Every chapter feeds a reader profile with ranks, statistics and per-title progress, and a 3D “spire” view where completed titles unlock.',
+            'A tracker for serialised web comics that treats reading as progression rather than as a list. Every chapter feeds a reader profile with ranks, statistics and per-title progress. A 3D “spire” shelves the whole library on nine floors: by progress from untouched to finished, plus floors for paused and dropped series.',
         contribution: [
             'Owned the product from concept through to a live public release',
-            'Built on Next.js and React, deployed on Vercel',
+            'Built with Vite, React 18 and Three.js, deployed on Vercel',
             'Designed the progression layer: reader ranks from Drifter to Monarch, reading totals, genre breakdowns and per-title progress',
         ],
-        stack: ['Next.js', 'React', 'Vercel'],
+        stack: ['Vite', 'React', 'Three.js', 'Vercel'],
         link: 'https://the-akashic-records.vercel.app/',
         linkLabel: 'the-akashic-records.vercel.app',
         // Ordered to lead with the core screen. The sign-in screen, which was
@@ -233,7 +233,7 @@ export const PROJECTS: Project[] = [
             {
                 type: 'image',
                 url: '/media/akashic/akashic-5.png',
-                alt: 'Spire layer view: a searchable shelf where completed titles are unlocked and the rest stay locked',
+                alt: 'Spire layer view: a searchable shelf of series, one marked conquered (finished) and the rest held in stasis (on hold)',
             },
             {
                 type: 'image',
