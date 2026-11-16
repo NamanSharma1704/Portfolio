@@ -290,7 +290,6 @@ export const SKILL_GROUPS: SkillGroup[] = [
         items: [
             'React',
             'TypeScript',
-            'Next.js',
             'Flutter',
             'Three.js / WebGL',
             'Figma',
