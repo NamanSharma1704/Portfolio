@@ -260,7 +260,7 @@ export const PROJECTS: Project[] = [
         description:
             'A day-to-day expense tracking app, designed around simplicity and user adoption, on the premise that a finance tool only helps if people keep using it.',
         contribution: [
-            'Designed and built the application end to end: concept, interface design and production-ready delivery',
+            'Designed and built the application end to end, from concept and interface design to a complete, working build',
             'Built in Flutter, with state management as a deliberate part of the design',
             'Kept the interface focused on simplicity, to make adoption easy',
         ],
