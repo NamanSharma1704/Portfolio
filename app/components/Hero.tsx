@@ -11,8 +11,8 @@ import ContourField from './ContourField';
  * the headline names the gap he actually works in. The role he is seeking is
  * stated above the fold instead of being buried in a contact section. And the
  * fact strip sits in the first screen, so a recruiter skimming for fifteen
- * seconds leaves with the degree, the technical background and the shipped
- * count whether or not they scroll.
+ * seconds leaves with the degree, the technical background and the
+ * products-built count whether or not they scroll.
  */
 export default function Hero() {
     return (

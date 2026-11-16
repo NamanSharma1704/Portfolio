@@ -112,7 +112,7 @@ export const FACTS: Fact[] = [
     { value: 'MSc', label: 'Int. Business & Management', detail: 'Univ. of Manchester' },
     { value: 'BCA', label: 'Computer Applications', detail: 'VIT, 2021 to 2024' },
     { value: '03', label: 'Roles held', detail: 'Design, media, outreach' },
-    { value: '02', label: 'Products shipped', detail: 'Web and mobile' },
+    { value: '02', label: 'Products built', detail: 'Web and mobile' },
 ];
 
 // ─── PRINCIPLES ────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ export const PRINCIPLES: Principle[] = [
         index: '03',
         title: 'Ship the whole thing',
         body:
-            'Concept, interface, build, release. Both products on this site went the full distance, which is where you learn what the plan forgot. It is also the only version of the work a user ever sees.',
+            'Concept, interface, build, release. The Akashic Records went the full distance to a live release, which is where you learn what the plan forgot. It is also the only version of the work a user ever sees.',
     },
 ];
 
@@ -255,16 +255,17 @@ export const PROJECTS: Project[] = [
     {
         ref: '02',
         name: 'Spenzy',
-        subtitle: 'Personal finance tracking, built for adoption',
-        status: 'Delivered',
+        subtitle: 'Personal finance tracking, designed for adoption',
+        status: 'Student project',
         description:
-            'A day-to-day expense tracking app, designed around simplicity and user adoption, on the premise that a finance tool only helps if people keep using it.',
+            'A day-to-day expense tracker, made as a student team project and designed around simplicity and adoption, on the premise that a finance tool only helps if people keep using it.',
         contribution: [
-            'Designed and built the application end to end, from concept and interface design to a complete, working build',
-            'Built in Flutter, with state management as a deliberate part of the design',
-            'Kept the interface focused on simplicity, to make adoption easy',
+            'Designed the product: its screens, its flows and how the app works, from concept to a full interface in Figma',
+            'Built the Flutter app, with Firebase for sign-in and expense data',
+            'Connected the app to a machine-learning service built by teammates, which suggests a category as you describe an expense',
+            'Kept the interface focused on simplicity, so logging an expense stays quick enough to become a habit',
         ],
-        stack: ['Flutter', 'UI/UX', 'State Management'],
+        stack: ['Figma', 'Flutter', 'Firebase'],
     },
 ];
 

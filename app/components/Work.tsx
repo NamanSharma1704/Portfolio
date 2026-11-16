@@ -20,7 +20,7 @@ export default function Work() {
             id="work"
             index="03"
             label="Selected work"
-            lede="Two products taken from concept to release, end to end."
+            lede="One live product and one student project, each taken from concept to a working build."
         >
             <div className="space-y-20">
                 {PROJECTS.map((project) => (
