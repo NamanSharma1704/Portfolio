@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Instrument_Serif, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import {
     SITE_URL,
     SITE_NAME,
@@ -207,6 +208,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 {children}
                 <div className="grain" aria-hidden="true" />
                 <SmoothScroll />
+                {/* Vercel Web Analytics: cookieless page views, so no consent
+                    banner is needed. Its script is served from this origin
+                    and only exists on Vercel deployments once Web Analytics
+                    is enabled for the project; in development it only logs
+                    to the console and sends nothing. */}
+                <Analytics />
             </body>
         </html>
     );
