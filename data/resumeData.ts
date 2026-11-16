@@ -201,6 +201,7 @@ export const PROJECTS: Project[] = [
             'A tracker for serialised web comics that treats reading as progression rather than as a list. Every chapter feeds a reader profile with ranks, statistics and per-title progress. A 3D “spire” shelves the whole library on nine floors: by progress from untouched to finished, plus floors for paused and dropped series.',
         contribution: [
             'Owned the product from concept through to a live public release',
+            'Compared it with what serialised readers already use (AniList and MyAnimeList lists, MangaUpdates, spreadsheets). Each treats a weekly series like a finished book, so the app logs a chapter in one tap, checks for new chapters on its own, and imports AniList, MyAnimeList and CSV lists so switching costs nothing',
             'Built with Vite, React 18 and Three.js, deployed on Vercel',
             'Designed the progression layer: reader ranks from Drifter to Monarch, reading totals, genre breakdowns and per-title progress',
         ],
