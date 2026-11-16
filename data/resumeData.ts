@@ -294,6 +294,7 @@ export const SKILL_GROUPS: SkillGroup[] = [
             'Three.js / WebGL',
             'Figma',
             'Adobe Creative Cloud',
+            'Canva',
             'Microsoft Office',
         ],
     },
