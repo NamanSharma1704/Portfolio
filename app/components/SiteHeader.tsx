@@ -1,17 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
 import { IDENTITY, NAV_ITEMS, CONTACT } from '../../data/resumeData';
 import { EASE_OUT, DURATION } from '../../lib/constants';
 import { useScrollLock } from '../../lib/useScrollLock';
 import { useFocusTrap } from '../../lib/useFocusTrap';
 import ThemeToggle from './ThemeToggle';
+import LensSwitch from './LensSwitch';
+import QuickActionsButton from './QuickActionsButton';
 
 export default function SiteHeader() {
     const [condensed, setCondensed] = useState(false);
     const [activeId, setActiveId] = useState<string>('');
     const [sheetOpen, setSheetOpen] = useState(false);
+    const sentinelRef = useRef<HTMLDivElement>(null);
     const progressRef = useRef<HTMLDivElement>(null);
 
     useScrollLock(sheetOpen);
@@ -19,22 +23,40 @@ export default function SiteHeader() {
     // stays reachable by keyboard to close it. Focus lands on the first link.
     const headerRef = useFocusTrap<HTMLElement>(sheetOpen, '#mobile-nav a');
 
-    /* --- Condensed state + reading progress, both on one rAF-throttled pass --- */
+    /* --- Condensed state. A 24px sentinel at the top of the page: when it
+           leaves the viewport the page has scrolled, and the header condenses.
+           No scroll listener, and it works whether or not smooth scrolling is
+           running (it is off for reduced motion). --- */
     useEffect(() => {
-        let frame = 0;
+        const sentinel = sentinelRef.current;
+        if (!sentinel || typeof IntersectionObserver === 'undefined') return;
 
+        // Several records can arrive together; only the latest is true now.
+        const observer = new IntersectionObserver((entries) => {
+            setCondensed(!entries[entries.length - 1].isIntersecting);
+        });
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, []);
+
+    /* --- Reading progress. CSS drives it wherever scroll-driven animation
+           exists (see READING PROGRESS in globals.css), and this effect does
+           nothing. Only browsers without it fall back to a throttled scroll
+           handler, so the rule still works there. --- */
+    useEffect(() => {
+        if (typeof CSS !== 'undefined' && CSS.supports('animation-timeline: scroll()')) return;
+
+        const rule = progressRef.current;
+        if (!rule) return;
+
+        let frame = 0;
         const update = () => {
             frame = 0;
-            const y = window.scrollY;
-            setCondensed(y > 24);
-
             const max = document.documentElement.scrollHeight - window.innerHeight;
-            const ratio = max > 0 ? Math.min(1, y / max) : 0;
-            // Written straight to the DOM rather than through state: this runs
-            // on every scroll frame and must not trigger a React render.
-            progressRef.current?.style.setProperty('transform', `scaleX(${ratio})`);
+            const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+            // Straight to the DOM: this must not trigger a React render.
+            rule.style.transform = `scaleX(${ratio})`;
         };
-
         const onScroll = () => {
             if (frame === 0) frame = requestAnimationFrame(update);
         };
@@ -89,12 +111,19 @@ export default function SiteHeader() {
 
     return (
         <>
+            {/* Marks the top of the page for the condensed state. */}
+            <div
+                ref={sentinelRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-0 top-0 h-6 w-px"
+            />
+
             <header
                 ref={headerRef}
                 data-site-header
                 className={`fixed inset-x-0 top-0 z-header transition-[background-color,border-color,backdrop-filter] duration-2 ease-out ${
                     condensed
-                        ? 'border-b border-rule bg-paper/85 backdrop-blur-xl backdrop-saturate-150'
+                        ? 'border-b border-rule bg-glass backdrop-blur-xl backdrop-saturate-150'
                         : 'border-b border-transparent bg-transparent'
                 }`}
             >
@@ -104,27 +133,28 @@ export default function SiteHeader() {
                             condensed ? 'py-3' : 'py-5'
                         }`}
                     >
-                        {/* --- Wordmark. The role label drops out between lg and xl,
-                            where the full nav takes its room and it would wrap. --- */}
-                        <a
-                            href="#top"
-                            className="group flex items-baseline gap-2.5"
-                            aria-label={`${IDENTITY.name}, back to top`}
-                        >
-                            <span className="font-display text-xl leading-none">
+                        {/* --- Wordmark. The role label shows only on tablets, which
+                            have no nav. On desktop the row holds the nav and two
+                            switches, and its width is capped, so the label never
+                            fits; the hero states the role anyway.
+                            The link is named by its own text, so what a screen
+                            reader announces always contains what is on screen. --- */}
+                        <a href="#top" className="group flex items-baseline gap-2.5">
+                            <span translate="no" className="font-display text-xl leading-none">
                                 {IDENTITY.name}
                             </span>
                             <span
-                                className="hidden h-3 w-px bg-rule-strong sm:block lg:hidden xl:block"
+                                className="hidden h-3 w-px bg-rule-strong md:block lg:hidden"
                                 aria-hidden="true"
                             />
-                            <span className="label hidden sm:block lg:hidden xl:block">{IDENTITY.role}</span>
+                            <span className="label hidden md:block lg:hidden">{IDENTITY.role}</span>
+                            <span className="sr-only">, back to top</span>
                         </a>
 
                         {/* --- Desktop nav --- */}
-                        {/* Full nav from lg: below ~1024px the wordmark, five links and the
+                        {/* Full nav from lg: below ~1024px the wordmark, six links and the
                             tools do not fit on one line, so tablets get the sheet. */}
-                        <nav aria-label="Sections" className="hidden items-center gap-7 lg:flex">
+                        <nav aria-label="Sections" className="hidden items-center gap-5 lg:flex xl:gap-7">
                             {NAV_ITEMS.map((item) => {
                                 const current = activeId === item.id;
                                 return (
@@ -149,7 +179,17 @@ export default function SiteHeader() {
                         </nav>
 
                         <div className="flex items-center gap-3">
-                            <div className="hidden sm:block">
+                            {/* Quick actions: only where the row has room for
+                                it, and where a keyboard is likely. The shortcut
+                                works at every width. */}
+                            <div className="hidden xl:block">
+                                <QuickActionsButton variant="header" />
+                            </div>
+
+                            {/* The lens, then the ground: what you are reading,
+                                then what it is printed on. */}
+                            <div className="hidden items-center gap-2 sm:flex">
+                                <LensSwitch />
                                 <ThemeToggle />
                             </div>
 
@@ -170,8 +210,8 @@ export default function SiteHeader() {
                                 aria-label={sheetOpen ? 'Close menu' : 'Open menu'}
                                 className="flex h-9 w-9 items-center justify-center rounded-sm border border-rule bg-paper-raised text-ink lg:hidden"
                             >
-                                {/* Two rules that cross into an X. No icon library
-                                    needed for a control this simple. */}
+                                {/* Two rules that cross into an X. Drawn in CSS
+                                    because the icon is the animation. */}
                                 <span className="relative block h-3 w-4" aria-hidden="true">
                                     <span
                                         className={`absolute left-0 h-px w-full bg-current transition-transform duration-2 ease-out ${
@@ -193,8 +233,7 @@ export default function SiteHeader() {
                 <div
                     ref={progressRef}
                     aria-hidden="true"
-                    className="h-px origin-left bg-accent"
-                    style={{ transform: 'scaleX(0)' }}
+                    className="progress-rule h-px bg-accent"
                 />
 
                 {/* --- Mobile sheet. A disclosure, not a modal: the toggle lives
@@ -202,49 +241,46 @@ export default function SiteHeader() {
                         assistive tech while it is still the way to close. --- */}
                 <AnimatePresence>
                     {sheetOpen && (
-                        <>
-                            <motion.div
-                                id="mobile-nav"
-                                initial={{ opacity: 0, y: -12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -12 }}
-                                transition={{ duration: DURATION.base, ease: EASE_OUT }}
-                                className="absolute inset-x-0 top-full border-b border-rule bg-paper shadow-lg lg:hidden"
-                            >
-                                <nav aria-label="Sections" className="shell flex flex-col py-6">
-                                    {NAV_ITEMS.map((item, index) => (
-                                        <a
-                                            key={item.id}
-                                            href={item.href}
-                                            onClick={() => setSheetOpen(false)}
-                                            aria-current={activeId === item.id ? 'true' : undefined}
-                                            className="flex items-baseline justify-between border-b border-rule py-4 last:border-0"
-                                        >
-                                            <span className="font-display text-2xl">
-                                                {item.label}
-                                            </span>
-                                            <span className="label figure-num">
-                                                {String(index + 1).padStart(2, '0')}
-                                            </span>
-                                        </a>
-                                    ))}
+                        <m.div
+                            id="mobile-nav"
+                            initial={{ opacity: 0, y: -12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -12 }}
+                            transition={{ duration: DURATION.base, ease: EASE_OUT }}
+                            className="absolute inset-x-0 top-full border-b border-rule bg-paper shadow-lg lg:hidden"
+                        >
+                            <nav aria-label="Sections" className="shell flex flex-col py-5">
+                                {NAV_ITEMS.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        href={item.href}
+                                        onClick={() => setSheetOpen(false)}
+                                        aria-current={activeId === item.id ? 'true' : undefined}
+                                        className="py-2.5 font-display text-2xl aria-[current]:text-accent"
+                                    >
+                                        {item.label}
+                                    </a>
+                                ))}
 
-                                    <div className="mt-6 flex items-center justify-between gap-4">
-                                        <a
-                                            href={CONTACT.cv}
-                                            download
-                                            onClick={() => setSheetOpen(false)}
-                                            className="btn btn-secondary flex-1"
-                                        >
-                                            Download CV
-                                        </a>
-                                        <div className="sm:hidden">
-                                            <ThemeToggle />
-                                        </div>
+                                <div className="mt-5 flex flex-col gap-4 border-t border-rule pt-5">
+                                    {/* Phones have no room for the switches in
+                                        the header, so they live here. */}
+                                    <div className="flex flex-wrap items-center gap-2 sm:hidden">
+                                        <LensSwitch />
+                                        <ThemeToggle />
                                     </div>
-                                </nav>
-                            </motion.div>
-                        </>
+
+                                    <a
+                                        href={CONTACT.cv}
+                                        download
+                                        onClick={() => setSheetOpen(false)}
+                                        className="btn btn-secondary"
+                                    >
+                                        Download CV
+                                    </a>
+                                </div>
+                            </nav>
+                        </m.div>
                     )}
                 </AnimatePresence>
             </header>
@@ -254,13 +290,13 @@ export default function SiteHeader() {
                 a fixed child and shrink this to the header's own box. */}
             <AnimatePresence>
                 {sheetOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: DURATION.base }}
                         onClick={() => setSheetOpen(false)}
-                        className="fixed inset-0 z-scrim bg-paper-inverse/20 backdrop-blur-sm lg:hidden"
+                        className="fixed inset-0 z-scrim bg-veil backdrop-blur-sm lg:hidden"
                         aria-hidden="true"
                     />
                 )}

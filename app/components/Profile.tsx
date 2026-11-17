@@ -1,73 +1,67 @@
 import { PROFILE, PRINCIPLES } from '../../data/resumeData';
 import { STAGGER_MS } from '../../lib/constants';
 import Section from './Section';
+import { Annotation, AnnotationList } from './Annotation';
 
+/**
+ * Profile: how he got here, with the principles as notes in the margin.
+ *
+ * The principles were a ruled list under the story. They are now annotations
+ * beside it, joined to the text column by leader lines, because that is what
+ * they are: the three notes he would write in the margin of his own history.
+ */
 export default function Profile() {
     return (
         <Section
             id="profile"
-            index="01"
-            label="Profile"
-            lede="How I got here, and the three things I keep coming back to."
+            title={PROFILE.headline}
+            titleClassName="max-w-[17ch] text-5xl"
         >
-            {/* --- Pull quote. Display serif at paragraph scale, with the
-                    opening quote hung into the left margin so the first letter
-                    stays on the text edge. --- */}
-            <blockquote className="relative" data-reveal="">
-                <p className="font-display text-3xl leading-[1.18] text-ink">
-                    <span
-                        className="absolute -left-[0.5em] hidden text-accent lg:inline"
-                        aria-hidden="true"
-                    >
-                        &ldquo;
-                    </span>
-                    {PROFILE.statement}
-                </p>
-            </blockquote>
-
-            <div className="mt-12 grid gap-x-14 gap-y-6 md:grid-cols-2">
-                {PROFILE.body.map((paragraph, index) => (
-                    <p
-                        key={index}
-                        className="text-base leading-relaxed text-ink-2"
-                        data-reveal=""
-                        style={{ ['--reveal-delay' as string]: `${index * STAGGER_MS}ms` }}
-                    >
-                        {paragraph}
+            <div className="grid gap-x-[clamp(3rem,7vw,6rem)] gap-y-14 lg:grid-cols-12">
+                {/* --- The story --- */}
+                <div className="lg:col-span-7">
+                    <p className="text-xl leading-snug text-ink" data-reveal="">
+                        {PROFILE.standfirst}
                     </p>
-                ))}
-            </div>
 
-            {/* --- Principles. A numbered editorial list with hanging numerals
-                    rather than three equal cards: it reads as argument instead
-                    of as feature grid, and the numbers give it sequence. --- */}
-            <ol className="mt-16 border-t border-rule">
-                {PRINCIPLES.map((principle, index) => (
-                    <li
-                        key={principle.index}
-                        className="group border-b border-rule py-7"
-                        data-reveal=""
-                        style={{ ['--reveal-delay' as string]: `${index * STAGGER_MS}ms` }}
-                    >
-                        <div className="grid gap-x-8 gap-y-3 sm:grid-cols-[auto_1fr]">
-                            <span
-                                className="font-mono figure-num text-sm text-accent sm:pt-1"
-                                aria-hidden="true"
+                    <div className="mt-8 space-y-5">
+                        {PROFILE.body.map((paragraph, index) => (
+                            <p
+                                key={index}
+                                className="prose-measure text-base leading-relaxed text-ink-2"
+                                data-reveal=""
+                                style={{ ['--reveal-delay' as string]: `${index * STAGGER_MS}ms` }}
                             >
-                                {principle.index}
-                            </span>
-                            <div>
-                                <h3 className="font-display text-xl leading-tight">
-                                    {principle.title}
-                                </h3>
-                                <p className="prose-measure mt-2.5 text-sm leading-relaxed text-ink-3">
-                                    {principle.body}
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                ))}
-            </ol>
+                                {paragraph}
+                            </p>
+                        ))}
+                    </div>
+                </div>
+
+                {/* --- The notes. The leader crosses the column gap from lg up;
+                        below that the notes simply follow the story. --- */}
+                <div className="lg:col-span-5">
+                    <p className="mb-7 text-sm font-medium text-ink" data-reveal="">
+                        {PROFILE.notesTitle}
+                    </p>
+                    <AnnotationList
+                        label={PROFILE.notesTitle}
+                        led
+                        className="lg:[--note-leader:clamp(1.5rem,4vw,3.5rem)]"
+                    >
+                        {PRINCIPLES.map((principle, index) => (
+                            <Annotation
+                                key={principle.title}
+                                marker={String(index + 1)}
+                                title={principle.title}
+                                style={{ ['--reveal-delay' as string]: `${index * STAGGER_MS}ms` }}
+                            >
+                                {principle.body}
+                            </Annotation>
+                        ))}
+                    </AnnotationList>
+                </div>
+            </div>
         </Section>
     );
 }

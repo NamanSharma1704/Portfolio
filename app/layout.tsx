@@ -11,6 +11,7 @@ import {
 } from '../lib/constants';
 import { IDENTITY, CONTACT, EDUCATION, EXPERIENCE } from '../data/resumeData';
 import SmoothScroll from './components/SmoothScroll';
+import MotionProvider from './components/MotionProvider';
 // Lenis's own rules first, so anything in globals.css can override them.
 import 'lenis/dist/lenis.css';
 import './globals.css';
@@ -53,7 +54,7 @@ const mono = JetBrains_Mono({
    og-image-dark.png sits beside it but is unused: platforms show one image
    and do not switch with the viewer's colour scheme. */
 const SOCIAL_IMAGE = {
-    url: '/og-image.png?v=2',
+    url: '/og-image.png?v=3',
     width: 1200,
     height: 630,
     alt: `${IDENTITY.name}, ${IDENTITY.role}`,
@@ -205,7 +206,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <a href="#main" className="skip-link">
                     Skip to content
                 </a>
-                {children}
+                <MotionProvider>{children}</MotionProvider>
                 <div className="grain" aria-hidden="true" />
                 <SmoothScroll />
                 {/* Vercel Web Analytics: cookieless page views, so no consent

@@ -2,7 +2,8 @@
    CONTENT
    Single source of truth for every word on the site.
 
-   Sourced strictly from public/Naman_Sharma_CV.pdf. Nothing here is invented:
+   Sourced from public/Naman_Sharma_CV.pdf and from what Naman has confirmed
+   himself (the project corrections and the dissertation). Nothing here is invented:
    two unverifiable metrics that the previous version of this site displayed
    ("3x reach growth", "40+ team members led") were removed because they do not
    appear in the CV. Role titles, employers, dates and bullets are verbatim in
@@ -52,10 +53,11 @@ export interface Project {
     subtitle: string;
     status: string;
     description: string;
-    contribution: string[];
     stack: string[];
     link?: string;
     linkLabel?: string;
+    /** A live piece of the product shown on the page (F4). */
+    live?: 'spire';
     media?: Media[];
 }
 
@@ -72,6 +74,24 @@ export interface Credential {
     detail?: string;
 }
 
+export interface Language {
+    name: string;
+    level: string;
+}
+
+export interface Study {
+    kind: string;
+    question: string;
+    title: string;
+    institution: string;
+    parts: { head: string; body: string }[];
+    explanationsTitle: string;
+    /** `held` marks the explanation the evidence supported. */
+    explanations: { name: string; verdict: string; held?: boolean }[];
+    evidenceTitle: string;
+    evidence: string[];
+}
+
 // ─── IDENTITY ──────────────────────────────────────────────────────────────────
 
 export const IDENTITY = {
@@ -79,12 +99,25 @@ export const IDENTITY = {
     initials: 'NS',
     role: 'Product & Digital Strategy',
     location: 'Manchester, United Kingdom',
-    // Headline is split so the display type can be set line by line.
-    headline: ['Between the', 'build and the', 'business case.'],
+    // The headline is set line by line. Two lines wherever they fit; three on
+    // phones, where the second line is too long for display size. The accent
+    // phrase closes both versions.
+    headline: {
+        wide: ['Between the build', 'and the business case.'],
+        narrow: ['Between the', 'build and the', 'business case.'],
+        accent: 'business case.',
+    },
+    // Twenty words at most. The degrees that used to open this sentence are
+    // in the fact strip directly below the hero.
     lede:
-        'I am an MSc International Business and Management candidate at the University of Manchester with a Computer Applications degree behind me. I work in the gap between engineering and commercial teams, where products get decided rather than just shipped.',
+        'I work in the gap between engineering and commercial teams, where products get decided rather than just shipped.',
     seeking: 'Open to product management and business strategy roles',
     availability: 'Graduating 2026',
+} as const;
+
+// The hero's interactive landscape. One sentence says what it means.
+export const LANDSCAPE = {
+    caption: 'Strategy as search: refine what works, or jump to find a higher peak.',
 } as const;
 
 export const CONTACT = {
@@ -97,8 +130,12 @@ export const CONTACT = {
 // ─── PROFILE ───────────────────────────────────────────────────────────────────
 
 export const PROFILE = {
-    statement:
-        'Great products are decided long before they are built. The hard part is rarely the code. It is knowing which problem is worth solving, for whom, and what the business gives up by choosing it.',
+    // One statement, set in two parts: the first sentence is the section's
+    // heading and the rest is its standfirst.
+    headline: 'Great products are decided long before they are built.',
+    standfirst:
+        'The hard part is rarely the code. It is knowing which problem is worth solving, for whom, and what the business gives up by choosing it.',
+    notesTitle: 'The three things I keep coming back to',
     body: [
         'My route into product was sideways. I took a Computer Applications degree, then spent three roles doing the commercial work around software rather than only writing it: running social campaigns across three platforms, designing brand-consistent visuals for client accounts, and coordinating volunteers and events end to end.',
         'That mix turned out to be the useful part. I can sit in a technical review and follow the trade-offs, then sit in a stakeholder meeting and explain what they cost. I am now formalising the commercial half of that at Manchester, on the MSc International Business and Management.',
@@ -191,6 +228,8 @@ export const EXPERIENCE: Role[] = [
 
 // ─── PROJECTS ──────────────────────────────────────────────────────────────────
 
+// What each project is, in brief. The full account of each one (problem,
+// options, decisions, outcome, and the build behind it) is in caseRecords.ts.
 export const PROJECTS: Project[] = [
     {
         ref: '01',
@@ -199,15 +238,10 @@ export const PROJECTS: Project[] = [
         status: 'Live',
         description:
             'A tracker for serialised web comics that treats reading as progression rather than as a list. Every chapter feeds a reader profile with ranks, statistics and per-title progress. A 3D “spire” shelves the whole library on nine floors: by progress from untouched to finished, plus floors for paused and dropped series.',
-        contribution: [
-            'Owned the product from concept through to a live public release',
-            'Compared it with what serialised readers already use (AniList and MyAnimeList lists, MangaUpdates, spreadsheets). Each treats a weekly series like a finished book, so the app logs a chapter in one tap, checks for new chapters on its own, and imports AniList, MyAnimeList and CSV lists so switching costs nothing',
-            'Built with Vite, React 18 and Three.js, deployed on Vercel',
-            'Designed the progression layer: reader ranks from Drifter to Monarch, reading totals, genre breakdowns and per-title progress',
-        ],
         stack: ['Vite', 'React', 'Three.js', 'Vercel'],
         link: 'https://the-akashic-records.vercel.app/',
         linkLabel: 'the-akashic-records.vercel.app',
+        live: 'spire',
         // Ordered to lead with the core screen. The sign-in screen, which was
         // previously first, is the least informative and now comes last.
         media: [
@@ -225,11 +259,6 @@ export const PROJECTS: Project[] = [
                 type: 'image',
                 url: '/media/akashic/akashic-3.png',
                 alt: 'Reader profile: rank progression from Drifter to Monarch, with totals for titles, completions and chapters read',
-            },
-            {
-                type: 'image',
-                url: '/media/akashic/akashic-4.png',
-                alt: 'The Divine Spire: a 3D tower of eight sectors beside reading metrics and a genre breakdown',
             },
             {
                 type: 'image',
@@ -260,12 +289,6 @@ export const PROJECTS: Project[] = [
         status: 'Student project',
         description:
             'A day-to-day expense tracker, made as a student team project and designed around simplicity and adoption, on the premise that a finance tool only helps if people keep using it.',
-        contribution: [
-            'Designed the product: its screens, its flows and how the app works, from concept to a full interface in Figma',
-            'Built the Flutter app, with Firebase for sign-in and expense data',
-            'Connected the app to a machine-learning service built by teammates, which suggests a category as you describe an expense',
-            'Kept the interface focused on simplicity, so logging an expense stays quick enough to become a habit',
-        ],
         stack: ['Figma', 'Flutter', 'Firebase'],
     },
 ];
@@ -316,12 +339,65 @@ export const EDUCATION: Credential[] = [
     },
 ];
 
+export const LANGUAGES: Language[] = [
+    { name: 'English', level: 'Fluent' },
+    { name: 'Hindi', level: 'Native' },
+];
+
+// ─── STUDY ─────────────────────────────────────────────────────────────────────
+// The MSc dissertation, from Naman's own account of it (confirmed 15 November
+// 2026). One claim is deliberately left out: that the statutory rules stayed
+// unchanged over the decade. SEBI's listing regulations were replaced in 2015
+// and amended after, so that sentence waits for the dissertation's exact
+// wording.
+
+export const STUDY: Study = {
+    kind: 'MSc dissertation',
+    question: 'Why did Infosys change how it appoints and dismisses its chief executives?',
+    title:
+        'Unravelling Governance Changes at Infosys: The Appointment and Dismissal of Chief Executives and Senior Managers, 2014 to 2024',
+    institution: 'University of Manchester',
+    parts: [
+        {
+            head: 'The question',
+            body: 'Over ten years, Infosys changed how it chooses and removes its chief executives and senior managers. The dissertation asks where that change came from.',
+        },
+        {
+            head: 'The method',
+            body: 'A longitudinal study of a single case, built on documents: twelve annual reports, regulatory orders, exchange filings and shareholder voting records, each ranked by how independent it is of the firm.',
+        },
+        {
+            head: 'The finding',
+            body: 'The shift began in informal governance norms. What made a leader legitimate moved from closeness to the founders towards professional expertise and international credibility. That changed what the board prioritised: documented selection processes, severance terms agreed in advance, and full shareholder ratification.',
+        },
+        {
+            head: 'Why it matters',
+            body: 'It is the work a strategy role asks for: stakeholder and power analysis, an argument built on ranked evidence, and rival explanations tested before one is accepted, at a firm whose clients and talent are global.',
+        },
+    ],
+    explanationsTitle: 'Explanations tested',
+    explanations: [
+        { name: 'Market pressure', verdict: 'Not sufficient alone' },
+        { name: 'Internal corporate politics', verdict: 'Not sufficient alone' },
+        { name: 'Informal governance norms', verdict: 'Where the shift began', held: true },
+    ],
+    evidenceTitle: 'Evidence base',
+    evidence: [
+        'Twelve annual reports',
+        'Regulatory orders',
+        'Exchange filings',
+        'Shareholder voting records',
+    ],
+};
+
 // ─── NAVIGATION ────────────────────────────────────────────────────────────────
+// In page order. The anchors are unchanged; "Study" is the one addition.
 
 export const NAV_ITEMS: NavItem[] = [
     { label: 'Profile', href: '#profile', id: 'profile' },
-    { label: 'Experience', href: '#experience', id: 'experience' },
     { label: 'Work', href: '#work', id: 'work' },
+    { label: 'Study', href: '#study', id: 'study' },
+    { label: 'Experience', href: '#experience', id: 'experience' },
     { label: 'Capabilities', href: '#capabilities', id: 'capabilities' },
     { label: 'Contact', href: '#contact', id: 'contact' },
 ];

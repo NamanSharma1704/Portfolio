@@ -42,6 +42,31 @@
   --grain-opacity: 0.5;
   --grain-blend: soft-light;
 
+  /* ---- Translucent surfaces. Written out as rgba because Tailwind cannot
+     add an opacity to a colour that is a bare var(): classes such as
+     bg-paper/85 compile to nothing, which is how the header tint and the
+     viewer backdrop went missing until 16 November 2026. ---- */
+  --glass: rgba(244, 241, 234, 0.85);      /* condensed header, over the page */
+  --veil: rgba(20, 19, 15, 0.22);          /* behind the open mobile menu */
+
+  /* The viewer is a dark room on either ground: the screens it shows are a
+     dark interface, and a pale backdrop would glare around them. */
+  --viewer: rgba(13, 11, 8, 0.94);
+  --viewer-shade: rgba(13, 11, 8, 0.72);
+  --viewer-control: rgba(13, 11, 8, 0.6);
+  --viewer-fg: #f4f1ea;
+  --viewer-muted: rgba(244, 241, 234, 0.66);  /* 7.4:1 or better on the backdrop */
+  --viewer-line: rgba(244, 241, 234, 0.24);
+  --viewer-line-strong: rgba(244, 241, 234, 0.55);
+
+  /* ---- Blueprint: the Build lens. The same paper, drawn as a working
+     drawing: a cool line colour for grids, labels and markers, a faint one
+     for the graph-paper ground, and ink for axes. It is a second line
+     colour, not a second accent: it never fills a button. ---- */
+  --blueprint-grid: #35506f;
+  --blueprint-construction: rgba(53, 80, 111, 0.09);
+  --blueprint-axis: #14130f;
+
   /* ---- Fluid type scale (1.25 ratio, clamped) ---- */
   --text-2xs: 0.6875rem;
   --text-xs: 0.78125rem;
@@ -56,6 +81,14 @@
   /* Display is bounded by height as well as width: on a short laptop screen
      a width-only size makes the headline eat the whole first viewport. */
   --text-display: clamp(3rem, min(1.1rem + 10.5vw, 11.5vh), 9.5rem);
+  /* The two-line headline. Its longer line measures 7.33em and the text
+     column is 92vw at most, so 12vw keeps that line inside the gutters with
+     a little to spare (7.33 x 12 = 88vw).
+     The cap is set by the column, which stops widening at 76rem: at 7.75rem
+     the first line (6em) ends before the landscape caption at the top right,
+     and the second still fits. Without it a 2560px screen wrapped the
+     headline onto three lines (found 17 November 2026). */
+  --text-display-wide: clamp(3rem, min(12vw, 11.5vh), 7.75rem);
 
   /* ---- Layout ---- */
   --measure: 76rem;        /* 1216px outer container */
@@ -114,6 +147,13 @@
   /* Slightly less on Ink: the tooth reads stronger against light type. */
   --grain-opacity: 0.42;
   --grain-blend: soft-light;
+
+  --glass: rgba(20, 19, 15, 0.85);
+  --veil: rgba(0, 0, 0, 0.5);
+
+  --blueprint-grid: #8fb1d4;
+  --blueprint-construction: rgba(143, 177, 212, 0.08);
+  --blueprint-axis: #f2efe7;
 }
 
 /* Layered so Tailwind utilities can override these defaults. */
@@ -193,6 +233,24 @@ select {
   color: inherit;
 }
 
+/* Taps act at once: the browser need not wait to see whether a tap is the
+   start of a double-tap zoom. Pinch zoom is untouched. */
+a,
+button,
+input,
+select,
+textarea,
+summary,
+label,
+[role='option'] {
+  touch-action: manipulation;
+}
+
+/* The flash on tap, in the house colour rather than the browser's grey. */
+html {
+  -webkit-tap-highlight-color: var(--accent-wash-strong);
+}
+
 ::selection {
   background: var(--accent);
   color: var(--accent-ink);
@@ -212,7 +270,8 @@ select {
 /* Sections receive focus programmatically after an anchor jump, so keyboard
    and screen-reader users land where the eye does. They are landmarks, not
    controls, so no ring. */
-section[tabindex='-1']:focus {
+section[tabindex='-1']:focus,
+[data-anchor]:focus {
   outline: none;
 }
 }
@@ -268,29 +327,6 @@ section[tabindex='-1']:focus {
   padding-inline: var(--gutter);
 }
 
-/* Editorial two-column: hanging label rail + content. Asymmetric on purpose. */
-.rail {
-  display: grid;
-  gap: clamp(2rem, 5vw, 4.5rem);
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 60rem) {
-  .rail {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
-  }
-
-  .rail-label {
-    position: sticky;
-    top: 7.5rem;
-    align-self: start;
-  }
-}
-
-.hairline {
-  border: 0;
-  border-top: 1px solid var(--rule);
-}
 
 /* ===========================================================================
    COMPONENT UTILITIES
@@ -436,6 +472,828 @@ section[tabindex='-1']:focus {
   color: var(--ink-2);
   white-space: nowrap;
 }
+
+/* ===========================================================================
+   INSTRUMENT CONTROLS
+   One family for every control that operates the page rather than links
+   somewhere: segmented switches, step buttons, readouts and the pause
+   control. Mono labels and tabular figures, so they read as instruments and
+   not as buttons borrowed from a form. The colours are local custom
+   properties, so the same controls work on the viewer's dark backdrop.
+   =========================================================================== */
+
+.instr {
+  --instr-fg: var(--ink);
+  --instr-muted: var(--ink-3);
+  --instr-line: var(--rule);
+  --instr-line-strong: var(--ink-3);
+  --instr-bg: var(--paper-raised);
+  --instr-on: var(--ink);
+  --instr-on-fg: var(--ink-inverse);
+
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--instr-fg);
+}
+
+/* On the viewer's backdrop, which is dark on either ground. */
+.instr-inverse {
+  --instr-fg: var(--viewer-fg);
+  --instr-muted: var(--viewer-muted);
+  --instr-line: var(--viewer-line);
+  --instr-line-strong: var(--viewer-line-strong);
+  --instr-bg: var(--viewer-control);
+  --instr-on: var(--viewer-fg);
+  --instr-on-fg: #14130f;
+}
+
+/* ---- Segmented switch: a radiogroup, one option always on ---- */
+.instr-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border: 1px solid var(--instr-line);
+  border-radius: var(--r-sm);
+  background: var(--instr-bg);
+}
+
+/* Tailwind's reset sets text-transform: none on buttons, so buttons inside a
+   control have the family's uppercase handed down explicitly. (A button that
+   is itself the control already gets it from .instr.) */
+.instr button {
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.instr-switch [role='radio'] {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--r-xs);
+  color: var(--instr-muted);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+.instr-switch [role='radio']:hover {
+  color: var(--instr-fg);
+}
+
+.instr-switch [role='radio'][aria-checked='true'] {
+  background: var(--instr-on);
+  color: var(--instr-on-fg);
+}
+
+/* ---- Step and pause buttons: square, 40px, so they pass target size ---- */
+.instr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--instr-line);
+  border-radius: var(--r-sm);
+  background: var(--instr-bg);
+  color: var(--instr-fg);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+
+.instr-btn:hover {
+  border-color: var(--instr-line-strong);
+}
+
+.instr-btn:active {
+  transform: translateY(1px);
+}
+
+/* ---- Action button: a named action, the same height as the others ---- */
+.instr-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--instr-line);
+  border-radius: var(--r-sm);
+  background: var(--instr-bg);
+  color: var(--instr-fg);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-out),
+    opacity var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+
+.instr-action:hover {
+  border-color: var(--instr-line-strong);
+}
+
+.instr-action:active {
+  transform: translateY(1px);
+}
+
+.instr-action[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+/* ---- Readout: a figure and what it is out of ---- */
+.instr-readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+}
+
+.instr-readout-total {
+  color: var(--instr-muted);
+}
+
+/* ===========================================================================
+   ANNOTATIONS
+   Margin notes keyed by a marker, each tied back to the text by a leader
+   line, the way a drawing is annotated. The leader only draws where there
+   is a margin to cross (set --note-leader on the list from lg up).
+   =========================================================================== */
+
+.notes {
+  --note-leader: 0px;
+  display: grid;
+  gap: 2.25rem;
+}
+
+.note {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  column-gap: 0.875rem;
+}
+
+.note-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--accent);
+}
+
+/* Leader line, ending in a tick on the text side. */
+.note::before {
+  content: '';
+  position: absolute;
+  top: 0.75rem;
+  right: 100%;
+  width: var(--note-leader);
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.note::after {
+  content: '';
+  position: absolute;
+  top: calc(0.75rem - 3px);
+  right: calc(100% + var(--note-leader));
+  width: 1px;
+  height: 7px;
+  background: var(--rule-strong);
+}
+
+.notes:not(.notes-led) .note::after {
+  display: none;
+}
+}
+
+/* ===========================================================================
+   LENS LAYERS
+   Each case study carries two layers, Business and Build, and both are
+   always in the page. `data-lens` on <html> (set before first paint) decides
+   which is shown. With no script there is no `data-lens`, so both show, and
+   print always shows both.
+   =========================================================================== */
+
+[data-lens='business'] [data-layer='build'],
+[data-lens='build'] [data-layer='business'] {
+  display: none;
+}
+
+@keyframes layer-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Runs each time a layer comes back from display: none, which is exactly
+     when the lens changes. */
+  [data-lens] [data-layer] {
+    animation: layer-in var(--dur-3) var(--ease-out);
+  }
+}
+
+/* ---- The Build layer's ground: graph paper ---- */
+.blueprint {
+  border: 1px solid color-mix(in srgb, var(--blueprint-grid) 32%, transparent);
+  border-radius: var(--r-md);
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--blueprint-construction) 1px, transparent 1px),
+    linear-gradient(90deg, var(--blueprint-construction) 1px, transparent 1px);
+  background-size: 1.5rem 1.5rem;
+  background-position: -1px -1px;
+}
+
+/* Inside it, the small labels and markers take the blueprint colour. */
+.blueprint .label,
+.blueprint .option-verdict[data-chosen='true'] {
+  color: var(--blueprint-grid);
+}
+
+.blueprint .option[data-chosen='true'] {
+  border-color: color-mix(in srgb, var(--blueprint-grid) 55%, transparent);
+}
+
+/* ===========================================================================
+   DECISION OPTIONS
+   Each option in a decision opens to say why it was or was not chosen. They
+   are native <details>, so they work from the keyboard and without script.
+   =========================================================================== */
+
+.option {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--paper-raised);
+}
+
+.option[data-chosen='true'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.option > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  padding: 0.6875rem 0.875rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: inherit;
+}
+
+.option > summary::-webkit-details-marker {
+  display: none;
+}
+
+.option-verdict {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-3);
+}
+
+.option-verdict[data-chosen='true'] {
+  color: var(--accent);
+}
+
+.option-caret {
+  color: var(--ink-3);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.option[open] .option-caret {
+  transform: rotate(180deg);
+}
+
+.option-why {
+  padding: 0 0.875rem 0.875rem;
+}
+
+/* On a phone the verdict drops under the name instead of squeezing it. */
+@media (max-width: 30rem) {
+  .option > summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.25rem;
+  }
+
+  .option-verdict {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .option-caret {
+    grid-row: 1 / span 2;
+  }
+}
+
+/* ===========================================================================
+   ANNOTATED SCREENS
+   Numbered markers laid over a product screen, matched to notes beside it.
+   =========================================================================== */
+
+.screen-marker {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  margin: -0.8125rem 0 0 -0.8125rem;
+  border-radius: var(--r-full);
+  /* The screens are a dark interface, so the marker is paper on any ground,
+     with a ring that keeps it legible over bright artwork too. */
+  background: #f4f1ea;
+  color: #14130f;
+  box-shadow: 0 0 0 2px #7f2d35, 0 2px 8px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ===========================================================================
+   FIRST-SCREEN ENTRANCE
+   Pure CSS, so it starts with the first paint. The scroll reveal below waits
+   for JavaScript to flip an attribute, which is right for content further
+   down the page but held the hero's text back by about a second on a slow
+   phone (measured 16 November 2026: 1.15 s of a 2.42 s LCP).
+   =========================================================================== */
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+/* The headline and the sentence under it never start invisible. They are
+   the largest things on the first screen, so they are painted in full with
+   the first frame and only settle into place. A fade would hide them for
+   its first moments, and a browser dates the page's main content from the
+   frame it can first be seen. */
+@keyframes settle {
+  from {
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .enter {
+    animation: enter var(--dur-3) var(--ease-out) backwards;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  .settle {
+    animation: settle var(--dur-4) var(--ease-out) backwards;
+  }
+}
+
+/* ===========================================================================
+   LANDSCAPE STAGE
+   The hero's contour motif is a static SVG poster. Where 3D can run, the
+   scene is drawn over it and the two cross-fade once the first frame exists.
+   If the scene never arrives, or fails, the poster simply stays.
+   =========================================================================== */
+
+.contour-poster,
+.landscape-canvas {
+  transition: opacity var(--dur-4) var(--ease-out);
+}
+
+.landscape-canvas {
+  opacity: 0;
+}
+
+[data-landscape='live'] .landscape-canvas {
+  opacity: 1;
+}
+
+[data-landscape='live'] .contour-poster {
+  opacity: 0;
+}
+
+/* ===========================================================================
+   SPIRE STAGE (F4)
+   A product screen. The poster is a still of the scene's own canvas; once
+   the live canvas has drawn its first frame the two cross-fade. The poster
+   must go, not just sit under it: the canvas is transparent between the
+   isles, and the two would double up as the Spire turns.
+   =========================================================================== */
+
+.spire-poster,
+.spire-canvas {
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+
+.spire-canvas {
+  opacity: 0;
+}
+
+[data-spire='live'] .spire-canvas {
+  opacity: 1;
+}
+
+[data-spire='live'] .spire-poster {
+  opacity: 0;
+}
+
+/* ---- The floor list: a quiet tick that lights when its floor is in view ---- */
+.spire-floor {
+  display: grid;
+  grid-template-columns: 0.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+
+.spire-floor::before {
+  content: '';
+  height: 1px;
+  background: var(--rule-strong);
+  transition: background-color var(--dur-1) var(--ease-out),
+    height var(--dur-1) var(--ease-out);
+}
+
+button.spire-floor {
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+button.spire-floor:hover,
+.spire-floor[data-lit] {
+  background: var(--paper-raised);
+}
+
+.spire-floor[data-lit]::before {
+  height: 2px;
+  background: var(--accent);
+}
+
+.spire-floor[aria-checked='true'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--paper-raised);
+}
+
+.spire-floor-rule {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-3);
+}
+
+/* ===========================================================================
+   EVIDENCE MAP (F5)
+   Skills on the left, the roles, projects and degrees that evidence them on
+   the right, and hairlines between them on wide screens. The lines are
+   decoration: each skill's row names its evidence in words.
+   =========================================================================== */
+
+.ev-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  row-gap: 3.5rem;
+}
+
+.ev-skills,
+.ev-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 2.75rem;
+}
+
+.ev-lines {
+  display: none;
+}
+
+/* ---- The lens decides which half leads ---- */
+[data-lens='build'] .ev-group[data-group='tools'] {
+  order: -1;
+}
+
+[data-lens='build'] .ev-group[data-kind='project'] {
+  order: -2;
+}
+
+[data-lens='build'] .ev-group[data-kind='degree'] {
+  order: -1;
+}
+
+/* ---- One node: a skill, or where one was used ---- */
+.ev-node {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 1rem;
+  row-gap: 0.125rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+
+.ev-node-source {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ev-name {
+  font-size: var(--text-base);
+  line-height: 1.3;
+  color: var(--ink);
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+/* The leading group runs large in the display face. With no lens set (no
+   script), business leads, as it does by default. */
+:root:not([data-lens='build']) .ev-group[data-group='business'] .ev-name,
+[data-lens='build'] .ev-group[data-group='tools'] .ev-name {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: var(--text-2xl);
+  line-height: 1.15;
+}
+
+.ev-sum {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ev-node-source .ev-name {
+  font-weight: 500;
+}
+
+.ev-node-source .ev-sum {
+  font-family: inherit;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+button.ev-node {
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+button.ev-node:hover {
+  background: var(--paper);
+}
+
+.ev-node[data-state='linked'] {
+  background: var(--accent-wash);
+}
+
+.ev-node[data-state='active'] {
+  background: var(--accent-wash-strong);
+}
+
+/* On a washed row the small text steps up a tone: ink-3 on the wash falls
+   to 3.9:1 on the dark ground. ink-2 holds well above 4.5:1 on both. */
+.ev-node[data-state='active'] .ev-sum,
+.ev-node[data-state='linked'] .ev-sum {
+  color: var(--ink-2);
+}
+
+.ev-node[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.ev-node[data-state='dim'] .ev-name {
+  color: var(--ink-3);
+}
+
+.ev-port {
+  display: none;
+}
+
+/* ---- The detail of the chosen node ---- */
+.ev-inline {
+  margin: 0.5rem 0 1.25rem;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 2px solid var(--accent);
+}
+
+.ev-panel {
+  order: 10;
+  min-height: 12rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+/* ---- Wide screens: three columns, with the lines in the middle one ---- */
+@media (min-width: 1024px) {
+  .ev-grid {
+    grid-template-columns: minmax(0, 6fr) minmax(5rem, 2fr) minmax(0, 5fr);
+  }
+
+  .ev-sources {
+    grid-column: 3;
+  }
+
+  .ev-lines {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  /* Where a line meets its node. */
+  .ev-port {
+    position: absolute;
+    top: 50%;
+    display: block;
+    width: 7px;
+    height: 7px;
+    margin-top: -3.5px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--r-full);
+    background: var(--paper-raised);
+    transition: background-color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out);
+  }
+
+  .ev-node-skill .ev-port {
+    right: -4px;
+  }
+
+  .ev-node-source .ev-port {
+    left: -4px;
+  }
+
+  .ev-node[data-state='active'] .ev-port,
+  .ev-node[data-state='linked'] .ev-port {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+}
+
+/* ---- The lines. Each link is drawn twice: a faint hairline that is always
+       there, and an accent line over it that draws out from whichever side
+       was chosen. It appears with a stroke; it goes at once. ---- */
+.ev-line {
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+
+.ev-line[data-dim] {
+  opacity: 0.35;
+}
+
+.ev-line-lit {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.ev-line-lit[data-from='source'] {
+  stroke-dashoffset: -1;
+}
+
+.ev-line-lit[data-on] {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--dur-3) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-line-lit[data-on] {
+    transition: none;
+  }
+}
+
+/* ===========================================================================
+   QUICK ACTIONS (F7)
+   The command palette: one field, one list, keys written as keys.
+   =========================================================================== */
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--rule);
+  border-bottom-color: var(--rule-strong);
+  border-radius: var(--r-xs);
+  background: var(--paper);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+/* The field has no ring of its own (it would box the whole row); while it
+   has focus, the rule under it turns to the accent and thickens instead. */
+.palette-field {
+  transition: box-shadow var(--dur-1) var(--ease-out);
+}
+
+.palette-field:focus-within {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.palette-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.palette-icon {
+  flex-shrink: 0;
+  color: var(--ink-3);
+}
+
+.palette-hint {
+  flex-shrink: 0;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+/* The highlighted option: the wash, with its icon in the accent and its
+   hint a tone darker, to keep 4.5:1 on the wash on both grounds. */
+.palette-option[data-active] {
+  background: var(--accent-wash-strong);
+}
+
+.palette-option[data-active] .palette-icon {
+  color: var(--accent);
+}
+
+.palette-option[data-active] .palette-hint {
+  color: var(--ink-2);
+}
+
+/* ===========================================================================
+   READING PROGRESS
+   The rule under the header is tied to the page scroll by CSS alone, so it
+   costs no JavaScript and no scroll listener. Browsers without scroll-driven
+   animation get the same rule driven from the header script instead.
+   =========================================================================== */
+
+.progress-rule {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@keyframes progress-grow {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .progress-rule {
+    animation: progress-grow linear both;
+    animation-timeline: scroll(root block);
+  }
 }
 
 /* ===========================================================================
@@ -597,6 +1455,12 @@ body::-webkit-scrollbar {
   .js [data-reveal-rule] {
     transform: scaleX(1);
   }
+
+  /* Scroll-linked, not time-based: it only moves when the visitor does, so
+     it stays, and the blanket duration override above must not shorten it. */
+  .progress-rule {
+    animation-duration: auto !important;
+  }
 }
 
 /* ===========================================================================
@@ -626,6 +1490,22 @@ body::-webkit-scrollbar {
   .js [data-reveal-rule] {
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  /* A printed page has no lens switch: show both layers, and every reason. */
+  [data-lens] [data-layer] {
+    display: block !important;
+  }
+
+  .option::details-content {
+    content-visibility: visible;
+    display: block;
+  }
+
+  /* A canvas does not print, so the Spire's still comes back in its place. */
+  [data-spire='live'] .spire-poster {
+    opacity: 1 !important;
+    transition: none !important;
   }
 
   /* The hero contour field is screen decoration; it wastes ink on paper. */

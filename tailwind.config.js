@@ -28,6 +28,23 @@ module.exports = {
                     DEFAULT: 'var(--rule)',
                     strong: 'var(--rule-strong)',
                 },
+                // Translucent surfaces. Each is a complete rgba in globals.css:
+                // an opacity suffix on the colours above (bg-paper/85) does
+                // not compile, because they are bare var() values.
+                // The Build lens's line colours.
+                blueprint: {
+                    DEFAULT: 'var(--blueprint-grid)',
+                    construction: 'var(--blueprint-construction)',
+                    axis: 'var(--blueprint-axis)',
+                },
+                glass: 'var(--glass)',
+                veil: 'var(--veil)',
+                viewer: {
+                    DEFAULT: 'var(--viewer)',
+                    shade: 'var(--viewer-shade)',
+                    fg: 'var(--viewer-fg)',
+                    muted: 'var(--viewer-muted)',
+                },
                 accent: {
                     DEFAULT: 'var(--accent)',
                     hover: 'var(--accent-hover)',
@@ -53,6 +70,7 @@ module.exports = {
                 '4xl': 'var(--text-4xl)',
                 '5xl': 'var(--text-5xl)',
                 display: 'var(--text-display)',
+                'display-wide': 'var(--text-display-wide)',
             },
             borderRadius: {
                 xs: 'var(--r-xs)',

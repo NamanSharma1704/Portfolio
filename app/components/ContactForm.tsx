@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { CircleNotch } from '@phosphor-icons/react/dist/ssr/CircleNotch';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -27,6 +28,20 @@ export default function ContactForm() {
     const [errors, setErrors] = useState<FieldErrors>({});
     const [values, setValues] = useState({ name: '', email: '', message: '' });
     const formRef = useRef<HTMLFormElement>(null);
+
+    // A message written but not sent is work; closing or reloading the tab
+    // asks first. Section links stay on the page, so they never trigger it.
+    const unsent = status !== 'sent' && values.message.trim().length > 0;
+    useEffect(() => {
+        if (!unsent) return;
+        const onBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            // Older browsers need a return value to show the prompt.
+            event.returnValue = '';
+        };
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, [unsent]);
 
     const uid = useId();
     const fieldId = (field: string) => `${uid}-${field}`;
@@ -176,7 +191,7 @@ export default function ContactForm() {
                         type="text"
                         autoComplete="name"
                         className="field"
-                        placeholder="Your name"
+                        placeholder="Your name…"
                         value={values.name}
                         onChange={update('name')}
                         onBlur={onBlur('name')}
@@ -197,6 +212,8 @@ export default function ContactForm() {
                         name="email"
                         type="email"
                         autoComplete="email"
+                        // An address is not a word; the red underlines only distract.
+                        spellCheck={false}
                         className="field"
                         placeholder="you@company.com"
                         value={values.email}
@@ -248,7 +265,7 @@ export default function ContactForm() {
                     {sending ? (
                         <>
                             <Spinner />
-                            Sending
+                            Sending…
                         </>
                     ) : (
                         'Send message'
@@ -296,19 +313,5 @@ function Field({
 }
 
 function Spinner() {
-    return (
-        <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            className="animate-spin"
-            aria-hidden="true"
-        >
-            <circle cx="7" cy="7" r="5.5" opacity="0.25" />
-            <path d="M12.5 7A5.5 5.5 0 0 0 7 1.5" strokeLinecap="round" />
-        </svg>
-    );
+    return <CircleNotch size={14} className="animate-spin" aria-hidden="true" />;
 }

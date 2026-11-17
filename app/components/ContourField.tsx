@@ -14,6 +14,10 @@
  *
  * The contour reading is deliberate: mapping and analysis rather than
  * decorative geometry.
+ *
+ * It is also the poster for the 3D strategy landscape. It shows first, and it
+ * is all a visitor sees without JavaScript, without WebGL, or on a device
+ * that should not be asked to run 3D.
  */
 
 const RING_COUNT = 30;
@@ -53,8 +57,9 @@ export default function ContourField() {
             <svg
                 viewBox="0 0 1200 760"
                 preserveAspectRatio="xMaxYMid slice"
-                // Quieter on phones, where the copy runs full width over it.
-                className="absolute right-0 top-0 h-full w-[140%] max-w-none opacity-55 sm:w-[105%] sm:opacity-100"
+                // `contour-poster` is what fades out when the 3D landscape
+                // takes over (LANDSCAPE STAGE in globals.css).
+                className="contour-poster absolute right-0 top-0 h-full w-[140%] max-w-none sm:w-[105%]"
                 style={{
                     // Dissolve towards the text so the headline always sits on
                     // clean paper, whatever the viewport width.

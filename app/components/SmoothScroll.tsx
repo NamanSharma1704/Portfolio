@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { setLenis } from '../../lib/smoothScroll';
+import { jumpTo, setLenis } from '../../lib/smoothScroll';
 
 /**
  * Inertia scrolling for wheel and trackpad, through Lenis.
@@ -18,14 +18,6 @@ import { setLenis } from '../../lib/smoothScroll';
  *   browser's own scrolling, not a smoothed version at speed 1.
  * - Keyboard scrolling stays native.
  */
-
-// Anchor jumps take a fixed time whatever the distance, so a long jump reads
-// as one deliberate move rather than a slow crawl. Where they land is set by
-// html's scroll-padding-top (the condensed header height), which Lenis reads.
-const DURATION = 1.15;
-
-// Exponential ease-out: fast departure, long settle. Lenis's default curve.
-const easeOutExpo = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
 
 export default function SmoothScroll() {
     useEffect(() => {
@@ -75,19 +67,9 @@ export default function SmoothScroll() {
             if (!target) return;
 
             event.preventDefault();
-
-            lenis.scrollTo(target, {
-                duration: DURATION,
-                easing: easeOutExpo,
-                // The mobile menu locks scroll while open; the click that
-                // closes it must still be allowed to move the page.
-                force: true,
-            });
-
-            if (window.location.hash !== url.hash) {
-                history.pushState(null, '', url.hash);
-            }
-            target.focus({ preventScroll: true });
+            // Animated, URL updated, focus moved (lib/smoothScroll.ts). The
+            // mobile menu's lock is still releasing here; the jump forces past it.
+            jumpTo(target);
         };
 
         document.addEventListener('click', onClick);

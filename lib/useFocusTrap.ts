@@ -23,8 +23,9 @@ const FOCUSABLE = [
 export function useFocusTrap<T extends HTMLElement>(
     active: boolean,
     /** Selector, within the container, for the element to focus on open.
-        Defaults to the first focusable element. */
-    initialFocus?: string
+        Defaults to the first focusable element. `false` focuses the
+        container itself (it must carry tabIndex={-1}). */
+    initialFocus?: string | false
 ): RefObject<T | null> {
     const containerRef = useRef<T | null>(null);
     const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -50,9 +51,12 @@ export function useFocusTrap<T extends HTMLElement>(
 
         // Move focus in. Fall back to the container itself, which carries
         // tabIndex={-1} for exactly this case.
-        const preferred = initialFocus
-            ? container.querySelector<HTMLElement>(initialFocus)
-            : null;
+        const preferred =
+            initialFocus === false
+                ? container
+                : initialFocus
+                  ? container.querySelector<HTMLElement>(initialFocus)
+                  : null;
         const first = preferred ?? focusables()[0];
         (first ?? container).focus({ preventScroll: true });
 

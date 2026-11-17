@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
+import { X } from '@phosphor-icons/react/dist/ssr/X';
 import type { Media } from '../../data/resumeData';
 import { EASE_OUT, DURATION } from '../../lib/constants';
 import { useScrollLock } from '../../lib/useScrollLock';
 import { useFocusTrap } from '../../lib/useFocusTrap';
+import { Readout, StepButton } from './Instrument';
 
 interface LightboxProps {
     media: Media[];
@@ -84,12 +87,12 @@ export default function Lightbox({
     return createPortal(
         <AnimatePresence>
             {open && current && (
-                <motion.div
+                <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: DURATION.base }}
-                    className="fixed inset-0 z-lightbox flex flex-col bg-paper-inverse/92 backdrop-blur-xl"
+                    className="fixed inset-0 z-lightbox flex flex-col bg-viewer backdrop-blur-xl"
                     onClick={() => onIndexChange(null)}
                 >
                     <div
@@ -106,39 +109,25 @@ export default function Lightbox({
                             onClick={(event) => event.stopPropagation()}
                         >
                             <div className="min-w-0">
-                                <p className="label !text-paper/60">{projectName}</p>
-                                <p
-                                    className="font-mono figure-num mt-0.5 text-sm text-paper"
-                                    aria-live="polite"
-                                >
-                                    {String(index + 1).padStart(2, '0')}
-                                    <span className="text-paper/40"> / {String(media.length).padStart(2, '0')}</span>
-                                </p>
+                                <p className="label !text-viewer-muted">{projectName}</p>
+                                <div className="mt-0.5">
+                                    <Readout value={index + 1} total={media.length} inverse live />
+                                </div>
                             </div>
 
                             <button
                                 type="button"
                                 onClick={() => onIndexChange(null)}
-                                className="flex h-10 w-10 items-center justify-center rounded-sm border border-paper/20 text-paper transition-colors duration-1 ease-out hover:border-paper/50 hover:bg-paper/10"
+                                className="instr instr-inverse instr-btn"
                                 aria-label="Close viewer"
                             >
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M3 3l10 10M13 3L3 13" />
-                                </svg>
+                                <X size={16} aria-hidden="true" />
                             </button>
                         </div>
 
                         {/* --- Stage --- */}
                         <div className="relative flex min-h-0 flex-1 items-center justify-center px-gutter pb-6">
-                            <motion.div
+                            <m.div
                                 // Keyed on index so each slide gets its own
                                 // mount and the crossfade actually reads.
                                 key={current.url}
@@ -169,19 +158,25 @@ export default function Lightbox({
                                         className="object-contain"
                                     />
                                 )}
-                            </motion.div>
+                            </m.div>
 
                             {media.length > 1 && (
                                 <>
-                                    <NavButton
-                                        side="left"
+                                    <StepButton
+                                        direction="previous"
+                                        label="Previous screen"
+                                        inverse
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 backdrop-blur-sm sm:left-4"
                                         onClick={(event) => {
                                             event.stopPropagation();
                                             step(-1);
                                         }}
                                     />
-                                    <NavButton
-                                        side="right"
+                                    <StepButton
+                                        direction="next"
+                                        label="Next screen"
+                                        inverse
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 backdrop-blur-sm sm:right-4"
                                         onClick={(event) => {
                                             event.stopPropagation();
                                             step(1);
@@ -193,55 +188,18 @@ export default function Lightbox({
 
                         {/* --- Caption --- */}
                         <p
-                            className="shrink-0 px-gutter pb-6 text-center text-sm text-paper/70"
+                            className="shrink-0 px-gutter pb-6 text-center text-sm text-viewer-fg"
                             onClick={(event) => event.stopPropagation()}
                         >
                             {current.alt}
-                            <span className="label ml-3 hidden !text-paper/35 sm:inline">
-                                &larr; &rarr; to browse &middot; Esc to close
+                            <span className="label ml-3 hidden !text-viewer-muted sm:inline">
+                                Arrow keys to browse, Esc to close
                             </span>
                         </p>
                     </div>
-                </motion.div>
+                </m.div>
             )}
         </AnimatePresence>,
         portalTarget
-    );
-}
-
-function NavButton({
-    side,
-    onClick,
-}: {
-    side: 'left' | 'right';
-    onClick: (event: React.MouseEvent) => void;
-}) {
-    const isLeft = side === 'left';
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            aria-label={isLeft ? 'Previous screen' : 'Next screen'}
-            className={`absolute top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-paper/20 bg-paper-inverse/60 text-paper backdrop-blur-sm transition-colors duration-1 ease-out hover:border-paper/50 hover:bg-paper/10 ${
-                isLeft ? 'left-2 sm:left-4' : 'right-2 sm:right-4'
-            }`}
-        >
-            <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                // Optical nudge: the chevron's visual mass sits off-centre
-                // inside its own box, so centring it by the maths looks wrong.
-                style={{ transform: `translateX(${isLeft ? '-1px' : '1px'})` }}
-            >
-                <path d={isLeft ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5'} />
-            </svg>
-        </button>
     );
 }

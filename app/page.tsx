@@ -1,12 +1,17 @@
 import SiteHeader from './components/SiteHeader';
 import Hero from './components/Hero';
+import Facts from './components/Facts';
 import Profile from './components/Profile';
 import Experience from './components/Experience';
 import Work from './components/Work';
+import Study from './components/Study';
 import Capabilities from './components/Capabilities';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import RevealObserver from './components/RevealObserver';
+import { LensAnnouncer } from './components/LensSwitch';
+import CommandPalette from './components/CommandPalette';
+import { COMMANDS } from '../data/commands';
 
 /**
  * The page is a server component. Previously the whole thing was one
@@ -25,14 +30,20 @@ export default function Page() {
             <SiteHeader />
             <main id="main" tabIndex={-1} className="outline-none">
                 <Hero />
+                <Facts />
                 <Profile />
-                <Experience />
                 <Work />
+                <Study />
+                <Experience />
                 <Capabilities />
                 <Contact />
             </main>
             <Footer />
             <RevealObserver />
+            <LensAnnouncer />
+            {/* Quick actions (Ctrl+K). The list is built here, from the content,
+                and handed to the island as plain data. */}
+            <CommandPalette commands={COMMANDS} />
         </>
     );
 }

@@ -1,4 +1,6 @@
+import { ArrowUp } from '@phosphor-icons/react/dist/ssr/ArrowUp';
 import { IDENTITY, CONTACT, NAV_ITEMS } from '../../data/resumeData';
+import QuickActionsButton from './QuickActionsButton';
 
 /**
  * Colophon.
@@ -15,16 +17,18 @@ export default function Footer() {
             <div className="shell py-16">
                 <div className="grid gap-12 md:grid-cols-12">
                     <div className="md:col-span-6">
-                        <p className="font-display text-4xl leading-none">{IDENTITY.name}</p>
+                        <p translate="no" className="font-display text-4xl leading-none">
+                            {IDENTITY.name}
+                        </p>
                         <p className="mt-3 text-sm opacity-70">{IDENTITY.role}</p>
                     </div>
 
                     <nav aria-label="Footer" className="md:col-span-3">
                         <p className="label !text-ink-inverse opacity-60">Sections</p>
-                        <ul className="mt-4 space-y-2">
+                        <ul className="mt-4 space-y-2 text-sm">
                             {NAV_ITEMS.map((item) => (
                                 <li key={item.id}>
-                                    <a href={item.href} className="link !text-ink-inverse text-sm">
+                                    <a href={item.href} className="link !text-ink-inverse">
                                         {item.label}
                                     </a>
                                 </li>
@@ -53,8 +57,12 @@ export default function Footer() {
                             </li>
                             <li>
                                 <a href={CONTACT.cv} download className="link !text-ink-inverse">
-                                    CV (PDF)
+                                    Download CV
                                 </a>
+                            </li>
+                            {/* Appears once script runs; the palette needs it. */}
+                            <li>
+                                <QuickActionsButton variant="footer" />
                             </li>
                         </ul>
                     </div>
@@ -67,8 +75,12 @@ export default function Footer() {
                     <p className="font-mono opacity-60">
                         Set in Instrument Serif, Instrument Sans &amp; JetBrains Mono
                     </p>
-                    <a href="#top" className="link !text-ink-inverse self-start sm:self-auto">
-                        Back to top &uarr;
+                    <a
+                        href="#top"
+                        className="link !inline-flex !text-ink-inverse items-center gap-1.5 self-start sm:self-auto"
+                    >
+                        Back to top
+                        <ArrowUp size={12} aria-hidden="true" />
                     </a>
                 </div>
             </div>

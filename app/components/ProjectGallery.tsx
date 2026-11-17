@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { Play } from '@phosphor-icons/react/dist/ssr/Play';
 import type { Media } from '../../data/resumeData';
 import Lightbox from './Lightbox';
 
@@ -52,9 +53,9 @@ export default function ProjectGallery({ media, projectName }: ProjectGalleryPro
                             sizes="(max-width: 1023px) 100vw, 55vw"
                             className="object-cover object-top transition-transform duration-3 ease-out group-hover:scale-[1.015]"
                         />
-                        <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-paper-inverse/70 to-transparent px-4 pb-3 pt-10 opacity-0 transition-opacity duration-2 ease-out group-hover:opacity-100 group-focus-visible:opacity-100">
-                            <span className="label !text-paper">Enlarge</span>
-                            <span className="label figure-num !text-paper">
+                        <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-viewer-shade to-transparent px-4 pb-3 pt-10 opacity-0 transition-opacity duration-2 ease-out group-hover:opacity-100 group-focus-visible:opacity-100">
+                            <span className="label !text-viewer-fg">Enlarge</span>
+                            <span className="label figure-num !text-viewer-fg">
                                 {images.length} screens
                             </span>
                         </span>
@@ -97,15 +98,7 @@ export default function ProjectGallery({ media, projectName }: ProjectGalleryPro
                                     />
                                 )}
                                 <span className="relative flex items-center gap-2.5 rounded-full bg-[#f4f1ea] px-4 py-2.5 text-[#14130f] shadow-md transition-transform duration-2 ease-spring group-hover:scale-[1.04]">
-                                    <svg
-                                        width="10"
-                                        height="12"
-                                        viewBox="0 0 10 12"
-                                        fill="#7f2d35"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M0 0l10 6-10 6z" />
-                                    </svg>
+                                    <Play size={12} weight="fill" color="#7f2d35" aria-hidden="true" />
                                     <span className="label !text-[#14130f]">Play clip</span>
                                 </span>
                             </button>
