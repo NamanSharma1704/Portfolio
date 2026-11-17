@@ -6,6 +6,8 @@ import type {
     CaseRecord as CaseRecordData,
     Decision,
     NextSteps as NextStepsData,
+    Schematic as SchematicData,
+    SchematicSpoke,
 } from '../../data/caseRecords';
 import { Annotation, AnnotationList } from './Annotation';
 
@@ -173,6 +175,81 @@ function ScreenNotes({ screen }: { screen: AnnotatedScreen }) {
 
 const PROSE = 'prose-measure text-base leading-relaxed text-ink-2';
 
+/** A numbered marker on the drawing, matched to a note below it. */
+function Marker({ n }: { n: number }) {
+    return (
+        <span className="sch-marker" aria-hidden="true">
+            {n}
+        </span>
+    );
+}
+
+/**
+ * The architecture as a hub and four spokes (styles under ARCHITECTURE
+ * SCHEMATIC in globals.css). On wide screens it is drawn as a cross, with
+ * lines into and out of the hub. On narrow ones the parts stack, and each
+ * spoke says in words how it meets the hub; those words are also what a
+ * screen reader hears, since the lines are decoration.
+ */
+function Architecture({ schematic }: { schematic: SchematicData }) {
+    const spokes: SchematicSpoke[] = ['browser', 'data', 'sources', 'jobs'];
+
+    const part = (id: 'hub' | SchematicSpoke) => {
+        const data = id === 'hub' ? schematic.hub : schematic.spokes[id];
+        const spoke = id === 'hub' ? null : schematic.spokes[id];
+        return (
+            <div key={id} className={`sch-part sch-${id}`}>
+                {data.marker && <Marker n={data.marker} />}
+                <p className="label">{data.label}</p>
+                <h5 className="mt-1 font-display text-lg leading-tight">{data.name}</h5>
+                <ul className="mt-3 space-y-1.5 text-sm leading-snug text-ink-2">
+                    {data.items.map((item) => (
+                        <li key={item}>{item}</li>
+                    ))}
+                </ul>
+                {spoke && (
+                    <p className="sch-link">
+                        {spoke.lineMarker && <Marker n={spoke.lineMarker} />}
+                        {spoke.link}
+                    </p>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <figure>
+            <p className={PROSE}>{schematic.lead}</p>
+
+            {/* The hub first: it is what every other part connects to. */}
+            <div className="sch mt-8">
+                {part('hub')}
+                {part('browser')}
+                {part('data')}
+                {part('sources')}
+                {part('jobs')}
+                {/* The lines, wide screens only. Decorative: each spoke's
+                    link says the same in words. */}
+                {spokes.map((id) => (
+                    <span key={id} className={`sch-line sch-line-${id}`} aria-hidden="true">
+                        {schematic.spokes[id].lineMarker && <Marker n={schematic.spokes[id].lineMarker!} />}
+                    </span>
+                ))}
+            </div>
+
+            <figcaption className="mt-10">
+                <AnnotationList label="Why each part is there" className="sch-notes">
+                    {schematic.notes.map((note, index) => (
+                        <Annotation key={note.title} marker={String(index + 1)} title={note.title} level={5}>
+                            {note.text}
+                        </Annotation>
+                    ))}
+                </AnnotationList>
+            </figcaption>
+        </figure>
+    );
+}
+
 /** What comes next: a lead, then a short named list under each heading. */
 function Next({ next }: { next: NextStepsData }) {
     return (
@@ -257,6 +334,12 @@ export default function CaseRecord({ record }: { record: CaseRecordData }) {
                         ))}
                     </dl>
                 </Row>
+
+                {build.architecture && (
+                    <Row title="Architecture">
+                        <Architecture schematic={build.architecture} />
+                    </Row>
+                )}
 
                 {build.decisions.length > 0 && (
                     <Row title="Technical decisions">

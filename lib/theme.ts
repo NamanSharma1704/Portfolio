@@ -8,8 +8,7 @@ import { THEME_STORAGE_KEY, type Theme } from './constants';
    Paper or Ink, held as `data-theme` on <html> (set before first paint by
    the head script), the same way as the lens (lens.ts). Everything that
    shows or changes the ground reads the one attribute, so the header switch
-   and the quick-actions palette can never disagree, and the 3D scenes follow
-   it without React (lib/three/palette.ts watches it too).
+   and the quick-actions palette can never disagree.
    =========================================================================== */
 
 const read = (): Theme =>

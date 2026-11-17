@@ -115,11 +115,6 @@ export const IDENTITY = {
     availability: 'Graduating 2026',
 } as const;
 
-// The hero's interactive landscape. One sentence says what it means.
-export const LANDSCAPE = {
-    caption: 'Strategy as search: refine what works, or jump to find a higher peak.',
-} as const;
-
 export const CONTACT = {
     email: 'naman.s.1704@gmail.com',
     linkedin: 'https://www.linkedin.com/in/namansharma1704',

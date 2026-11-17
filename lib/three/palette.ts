@@ -10,12 +10,9 @@
 interface Colours {
     readonly paper: string;
     readonly ink: string;
-    readonly muted: string;
     readonly accent: string;
-    readonly rule: string;
-    /** The Build lens: grid lines, and the axes. */
+    /** The Build lens's line colour. */
     readonly grid: string;
-    readonly axis: string;
 }
 
 export interface Palette extends Colours {
@@ -26,11 +23,8 @@ export interface Palette extends Colours {
 const TOKENS: Record<keyof Colours, string> = {
     paper: '--paper',
     ink: '--ink',
-    muted: '--ink-3',
     accent: '--accent',
-    rule: '--rule-strong',
     grid: '--blueprint-grid',
-    axis: '--blueprint-axis',
 };
 
 export function readPalette(): Palette {

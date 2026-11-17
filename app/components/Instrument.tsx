@@ -9,9 +9,9 @@ import { Play } from '@phosphor-icons/react/dist/ssr/Play';
 /**
  * Instrument controls.
  *
- * One family for the controls that operate the page: the ground switch, the
- * viewer's step buttons and counter, and the landscape's actions, readout and
- * pause control. They share one look (styles under INSTRUMENT CONTROLS in globals.css)
+ * One family for the controls that operate the page: the ground and lens
+ * switches, the viewer's step buttons and counter, and the Spire's actions
+ * and pause control. They share one look (styles under INSTRUMENT CONTROLS in globals.css)
  * and one set of behaviours, so a new control is a use of this file rather
  * than a new design.
  *

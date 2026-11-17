@@ -1,8 +1,9 @@
 import { Fragment } from 'react';
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr/ArrowRight';
-import { IDENTITY, CONTACT, LANDSCAPE } from '../../data/resumeData';
+import { IDENTITY, CONTACT } from '../../data/resumeData';
+import { buildGround } from '../../data/ground';
 import ContourField from './ContourField';
-import StrategyLandscape from './three/StrategyLandscape';
+import GroundMap from './three/GroundMap';
 
 /**
  * Hero.
@@ -12,11 +13,12 @@ import StrategyLandscape from './three/StrategyLandscape';
  * directly below (Facts), and on a laptop its figures still show at the foot
  * of the first screen.
  *
- * Behind them sits the landscape stage: the contour poster, and over it the
- * 3D strategy landscape wherever the device can run one. From 1280px the
- * stage fills the hero behind the text. Below that it is a band of its own
- * under the two actions, so the marker is never hidden behind the headline
- * (at 1024px the controls would also collide with the status line).
+ * Beside them, "The ground I cover": Naman's own record drawn as a contour
+ * map, every peak a role, project or degree, placed between business and
+ * build by the skills it evidences (GroundMap, data/ground.ts). It replaced
+ * an abstract "strategy landscape" on 17 November 2026: a scene on the first
+ * screen should be about him. Under it, and in its place wherever 3D cannot
+ * run, the static contour drawing, painted with the first frame.
  *
  * The entrance is CSS only, so nothing here waits for JavaScript. The
  * headline and the sentence under it are painted in full with the first frame
@@ -27,9 +29,14 @@ import StrategyLandscape from './three/StrategyLandscape';
 
 const delay = (ms: number) => ({ ['--enter-delay' as string]: `${ms}ms` });
 
-// Where the landscape puts its controls: level with the status line on wide
-// screens, under the landscape band on small ones.
-const CONTROLS = { wide: 'landscape-controls-wide', narrow: 'landscape-controls-narrow' } as const;
+// Where the map puts its caption (level with the status line on wide
+// screens, under the map's band on small ones) and its labels (a layer over
+// the whole hero, above the text, so they can be chosen).
+const SLOTS = {
+    wide: 'ground-caption-wide',
+    narrow: 'ground-caption-narrow',
+    labels: 'ground-labels',
+} as const;
 
 function HeadlineLines({ lines, className }: { lines: readonly string[]; className: string }) {
     const { accent } = IDENTITY.headline;
@@ -56,6 +63,9 @@ function HeadlineLines({ lines, className }: { lines: readonly string[]; classNa
 
 export default function Hero() {
     const { wide, narrow } = IDENTITY.headline;
+    // Computed here, on the server, from the CV and the evidence map; the
+    // island gets plain numbers and words.
+    const ground = buildGround();
 
     return (
         <section
@@ -68,8 +78,8 @@ export default function Hero() {
             className="relative flex min-h-[100dvh] flex-col overflow-hidden pb-[clamp(2.5rem,7vh,5rem)] pt-[clamp(5rem,10vh,6rem)] lg:min-h-[calc(100dvh-7.5rem)]"
         >
             <div className="shell relative z-[1] flex flex-1 flex-col justify-center">
-                {/* Its own box, so the landscape controls can sit level with
-                    the status line on wide screens. */}
+                {/* Its own box, so the map's caption can sit level with the
+                    status line on wide screens. */}
                 <div className="relative">
                 {/* --- Status line --- */}
                 <div className="enter flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -96,8 +106,7 @@ export default function Hero() {
                     <HeadlineLines lines={wide} className="hidden text-display-wide sm:block" />
                 </h1>
 
-                {/* --- Lede, then the two actions under it. Everything reads
-                        down the left; the right of the hero is the landscape's. --- */}
+                {/* --- Lede, then the two actions under it. --- */}
                 <p className="settle mt-[clamp(1.5rem,4vh,2.5rem)] max-w-[34rem] text-lg leading-relaxed text-ink-2">
                     {IDENTITY.lede}
                 </p>
@@ -116,24 +125,25 @@ export default function Hero() {
                     </a>
                 </div>
 
-                {/* --- From 1280px: the landscape's controls, once it is
-                        running. Empty, and taking no room, until then. --- */}
-                <div id={CONTROLS.wide} className="absolute -top-[11px] right-0 hidden xl:block" />
+                {/* --- From 1280px: the map's caption, once it is running. --- */}
+                <div id={SLOTS.wide} className="absolute -top-[11px] right-0 hidden xl:block" />
                 </div>
             </div>
 
-            {/* --- Landscape stage. After the text in the markup, so on smaller
-                    screens it follows the actions; from xl it is lifted out
-                    and laid behind everything. Nothing in it takes the
-                    pointer: the controls live in the slots. --- */}
-            <div className="pointer-events-none relative mt-8 h-[clamp(14rem,34vh,19rem)] xl:absolute xl:inset-0 xl:mt-0 xl:h-auto">
+            {/* --- The map's stage. After the text in the markup, so on smaller
+                    screens it is a band under the actions; from 1280px it is
+                    laid behind everything, and the hero listens for the pointer
+                    instead, so the text above it stays selectable. --- */}
+            <div className="relative mt-8 h-[clamp(14rem,34vh,19rem)] xl:pointer-events-none xl:absolute xl:inset-0 xl:mt-0 xl:h-auto">
                 <ContourField />
-                <StrategyLandscape caption={LANDSCAPE.caption} slots={CONTROLS} />
+                <GroundMap ground={ground} slots={SLOTS} />
             </div>
 
-            {/* --- Below 1280px: the controls sit under the band, like a
-                    caption under its figure. --- */}
-            <div id={CONTROLS.narrow} className="shell relative z-[1] xl:hidden" />
+            {/* --- Below 1280px: the caption under the band. --- */}
+            <div id={SLOTS.narrow} className="shell relative z-[1] xl:hidden" />
+
+            {/* --- The map's labels: real links, above the text layer. --- */}
+            <div id={SLOTS.labels} className="pointer-events-none absolute inset-0 z-[2]" />
         </section>
     );
 }

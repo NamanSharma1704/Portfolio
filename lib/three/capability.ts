@@ -48,21 +48,6 @@ function hasWebGL2(): boolean {
     }
 }
 
-export function checkCapability(): Capability {
-    const hints = navigator as Navigator & NavigatorHints;
-
-    if (hints.connection?.saveData) return { run: false, reason: 'data-saver' };
-    if (typeof hints.deviceMemory === 'number' && hints.deviceMemory < 4) {
-        return { run: false, reason: 'low-memory' };
-    }
-    if (!hasWebGL2()) return { run: false, reason: 'no-webgl2' };
-
-    return {
-        run: true,
-        still: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    };
-}
-
 /**
  * Resolves once the page has loaded and the browser has a quiet moment, so a
  * scene never competes with the first paint or with hydration.
@@ -82,3 +67,19 @@ export function whenIdleAfterLoad(signal: AbortSignal): Promise<void> {
         else window.addEventListener('load', idle, { once: true, signal });
     });
 }
+
+export function checkCapability(): Capability {
+    const hints = navigator as Navigator & NavigatorHints;
+
+    if (hints.connection?.saveData) return { run: false, reason: 'data-saver' };
+    if (typeof hints.deviceMemory === 'number' && hints.deviceMemory < 4) {
+        return { run: false, reason: 'low-memory' };
+    }
+    if (!hasWebGL2()) return { run: false, reason: 'no-webgl2' };
+
+    return {
+        run: true,
+        still: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    };
+}
+

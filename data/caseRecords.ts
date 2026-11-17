@@ -61,6 +61,29 @@ export interface NextSteps {
     groups?: { title: string; points: string[] }[];
 }
 
+/**
+ * An architecture drawn as a hub and four spokes: the one origin everything
+ * passes through, with the browser, the data, the outside sources and the
+ * scheduled jobs around it. Notes are numbered in order from 1; a part or a
+ * line carries the number of the note that explains it.
+ */
+export type SchematicSpoke = 'browser' | 'data' | 'sources' | 'jobs';
+
+export interface SchematicPart {
+    label: string;
+    name: string;
+    items: string[];
+    marker?: number;
+}
+
+export interface Schematic {
+    /** One sentence: what the drawing shows. */
+    lead: string;
+    hub: SchematicPart;
+    spokes: Record<SchematicSpoke, SchematicPart & { link: string; lineMarker?: number }>;
+    notes: { title: string; text: string }[];
+}
+
 export interface CaseRecord {
     business: {
         context: string;
@@ -74,6 +97,8 @@ export interface CaseRecord {
     build: {
         summary: string;
         stack: { part: string; detail: string }[];
+        /** How the parts connect, drawn, with the reason for each part. */
+        architecture?: Schematic;
         decisions: Decision[];
         /** Work on the project that was someone else's. */
         notMine?: string;
@@ -207,6 +232,91 @@ const AKASHIC: CaseRecord = {
             { part: 'Integrity', detail: 'Deleted records go to a Trash. Every chapter change writes one entry to a reading log.' },
             { part: 'Tests', detail: '189 API checks and 14 browser smoke tests.' },
         ],
+        // From Naman's answers of 16 November 2026 and the app's own code
+        // (the hourly workflow is .github/workflows/keep-alive.yml).
+        architecture: {
+            lead: 'Everything passes through one origin on Vercel. The browser calls only the app’s own API, which reads and writes MongoDB, calls the outside sources on the browser’s behalf, and is called every hour by a scheduled run.',
+            hub: {
+                label: 'Vercel',
+                name: 'One origin',
+                items: [
+                    'The built front end',
+                    'An Express API as serverless functions',
+                    'Source proxy and lookup cache',
+                    'Image relay for covers',
+                ],
+                marker: 4,
+            },
+            spokes: {
+                browser: {
+                    label: 'Browser',
+                    name: 'The React app',
+                    items: [
+                        'React 18 and TypeScript, built with Vite',
+                        'The Spire and the dais in raw three.js',
+                        'Chapter taps held and retried',
+                    ],
+                    marker: 1,
+                    link: 'Calls only the app’s own origin',
+                    lineMarker: 2,
+                },
+                data: {
+                    label: 'MongoDB Atlas',
+                    name: 'One cluster, many databases',
+                    items: [
+                        'The owner’s archive',
+                        'A database per guest, copied from a 12-series template',
+                        'The shared lookup cache',
+                    ],
+                    link: 'Read and written by the API, through Mongoose',
+                    lineMarker: 5,
+                },
+                sources: {
+                    label: 'Outside',
+                    name: 'Sources',
+                    items: ['AniList', 'MyAnimeList, through Jikan', 'MangaDex', 'MangaUpdates', 'Cover image hosts'],
+                    link: 'Reached only through the API',
+                    lineMarker: 3,
+                },
+                jobs: {
+                    label: 'GitHub Actions',
+                    name: 'Every hour',
+                    items: [
+                        'Checks the owner’s library for new chapters',
+                        'Drops guest sandboxes older than two hours',
+                        'Fills in missing covers',
+                    ],
+                    link: 'Calls the API on a schedule',
+                    lineMarker: 6,
+                },
+            },
+            notes: [
+                {
+                    title: 'Taps that survive a dropped connection',
+                    text: 'Taps on a chapter counter merge into one save and retry through an outage, within the session only. Replaying an old save after a reload could overwrite newer progress made on another device.',
+                },
+                {
+                    title: 'Same origin only',
+                    text: 'The browser never calls another service. Some sources need what a web page cannot send, such as MangaDex’s User-Agent rule or a cover host’s Referer check, so the server sends each source what it expects.',
+                },
+                {
+                    title: 'One shared cache',
+                    text: 'The data is public, so a lookup is cached for every user: one hit saves up to three outbound calls. A miss is kept only briefly, because it is more often an outage than a title nobody knows.',
+                },
+                {
+                    title: 'Covers on the app’s own domain',
+                    text: 'The shareable profile card draws covers onto a canvas, and an image from another domain would taint it. The relay is locked down: public addresses only, bitmaps only, capped in size, and closed to other sites.',
+                },
+                {
+                    title: 'A database per guest',
+                    text: 'The sign-in check picks the database once per request: the owner’s archive or the guest’s sandbox. No route has a guest-only branch, and a forged guest token reaches only an empty sandbox.',
+                },
+                {
+                    title: 'Every hour, from outside',
+                    text: 'A scheduled run calls the API to check the owner’s library for new chapters, drop guest sandboxes older than two hours, and fill in missing covers.',
+                },
+            ],
+        },
         decisions: [
             {
                 question: 'Where do calls to other services happen?',

@@ -8,8 +8,7 @@ import { LENS_STORAGE_KEY, type Lens } from './constants';
    One piece of state for the whole site: is the visitor reading the work as
    Business or as Build? It lives as `data-lens` on <html>, set before first
    paint by the head script, so CSS can show the right layer of each case
-   study without waiting for React, and the 3D scenes can read it without
-   React at all (lib/three/palette.ts watches the same attribute).
+   study without waiting for React.
 
    Components that need it in React subscribe to the attribute. There is no
    context and no provider: every switch on the page stays in step because

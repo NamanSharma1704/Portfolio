@@ -1,13 +1,13 @@
 # Naman Sharma: Portfolio
 
-Single-page portfolio for product and digital strategy roles. Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3, Lenis for smooth scrolling, Motion for interface animation, and raw three.js for the two 3D scenes.
+Single-page portfolio for product and digital strategy roles. Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3, Lenis for smooth scrolling, Motion for interface animation, plain WebGL2 for the hero's map and raw three.js for the live Spire.
 
 Live: https://portfolio-naman-17.vercel.app
 
 ## What is on the page
 
-- **Hero** with a 3D **strategy landscape**: strategy as search. "Exploit" climbs from where the marker stands and stops on the nearest peak; "Explore" jumps somewhere new. It loads after the page, only on devices that can run it, and falls back to a static contour poster everywhere else.
-- **Lens switch** (Business or Build) in the header, the phone menu and the head of Selected work. Business shows each project's problem, options and outcome; Build shows its stack and technical decisions, and redraws the landscape as a wireframe. The choice is remembered, and `?lens=build` in the address opens the page in the Build view, so it can be shared as a link.
+- **Hero**: the headline, one sentence and two actions, beside **"The ground I cover"**: Naman's own record as a 3D contour map. Every peak is a role, project or degree; business is to the left and build to the right (by the share of the skills it evidences that are tools); 2021 is at the back and now at the front (from the CV dates); each ring is one skill it evidences. Drag to turn it, point at a peak or Tab to its label to read what it was, choose it to jump to it. Every number comes from `data/ground.ts`, which computes them from the CV and the evidence map.
+- **Lens switch** (Business or Build) in the header, the phone menu and the head of Selected work. Business shows each project's problem, options and outcome; Build shows its stack and technical decisions. The choice is remembered, and `?lens=build` in the address opens the page in the Build view, so it can be shared as a link.
 - **Case studies as decision records**: Context, Problem, Decisions (every option opens to say why it was or was not chosen), What shipped, Outcome and Next, with an annotated product screen.
 - **The Divine Spire, live**: The Akashic Records' own 3D library view, ported from its code. A still until the visitor presses Start; then it runs, with a floor list beside it that drives it from the keyboard.
 - **Study**: the MSc dissertation.
@@ -57,6 +57,7 @@ Nothing is written into the components. Content lives in `data/`:
 | `resumeData.ts` | Identity and headline, contact details, facts, principles, experience, projects, skills, education, languages, the study |
 | `caseRecords.ts` | Each project as a decision record, in its Business and Build layers |
 | `evidence.ts` | Which roles, projects and degrees evidence each skill, and why. The build fails if a link names something that does not exist |
+| `ground.ts` | The hero map's peaks, computed from the CV dates and the evidence map. Nothing to edit by hand: it follows the other files. Two dates are not in the CV and are placed from the case records (The Akashic Records now, Spenzy about three years back) |
 | `spireFloors.ts` | The Spire's nine floors, ported from the app |
 | `commands.ts` | Everything quick actions can do, built from the other files |
 
@@ -76,7 +77,7 @@ The page is a **server component**, so the content arrives as plain HTML and rea
 | :--- | :--- |
 | `SiteHeader.tsx` | Scroll state, reading progress, section highlighting, mobile menu |
 | `ThemeToggle.tsx`, `LensSwitch.tsx` | Paper or Ink, Business or Build; both read their state from `<html>`, so every copy of a switch agrees |
-| `three/StrategyLandscape.tsx` | The hero's landscape: capability check, on-demand three.js, controls |
+| `three/GroundMap.tsx` | The hero's map, its labels (real links) and its caption |
 | `three/SpirePreview.tsx` | The live Spire and its floor list |
 | `EvidenceMap.tsx` | The skills map and its lines |
 | `CommandPalette.tsx` | Listens for Ctrl+K; the dialog itself (`PaletteDialog.tsx`) loads on first use |
@@ -86,14 +87,17 @@ The page is a **server component**, so the content arrives as plain HTML and rea
 
 ### 3D
 
-Both scenes are raw three.js behind a small handle (resize, draw, dispose), hosted by `lib/three/host.ts`:
+There are two 3D scenes, and both are evidence rather than decoration:
+
+- **The hero's map** (`lib/three/ground/scene.ts`): Naman's record, drawn from `data/ground.ts`. It replaced an abstract "strategy landscape" on 17 November 2026, because a scene on the first screen should be about him. It is plain WebGL2: one surface and one shader, a few kilobytes, so the first screen never downloads three.js. It loads after the page has loaded and the browser is idle. Its start is spread over several short tasks (shaders compile in the background where the browser allows), so it adds no long task to the first screen. The labels over it are real links in time order, so the map works from the keyboard and to a screen reader; the canvas itself is hidden from assistive technology.
+- **The live Spire** (`lib/three/spire/scene.ts`): The Akashic Records' own code, in raw three.js. three.js (about 135 KB gzipped) is downloaded only when a visitor presses Start.
+
+Both sit behind the same small handle (resize, draw, dispose) and the same frame loop, `lib/three/loop.ts` (the Spire through `lib/three/host.ts`, which adds the three.js renderer):
 
 - **On demand:** a frame is drawn only when something moves; slow ambient motion is capped at 30 frames a second; nothing is drawn off screen or in a background tab.
-- **Lifecycle:** each build gets a fresh canvas, and a scene is released when it is more than a viewport away.
-- **Capability ladder** (`lib/three/capability.ts`): no WebGL2, a software renderer, data saver or under 4 GB of memory means the still poster and no three.js download at all. Reduced motion runs the scene as a still, with moves that land at once.
-- **Colours** come from the CSS tokens at run time (`lib/three/palette.ts`), so the landscape follows the ground and the lens. The Spire keeps its product's own amber look.
-
-three.js is about 135 KB gzipped, shared by both scenes and never part of the first load.
+- **Lifecycle:** each build gets a fresh canvas, and the scene is released when it is more than a viewport away.
+- **Capability ladder** (`lib/three/capability.ts`): no WebGL2, a software renderer, data saver or under 4 GB of memory means the still drawing and no 3D download at all. Reduced motion runs a scene as a still, with moves that land at once.
+- **Colours:** the map takes the page's own claret and blueprint tokens and follows the ground and the lens; the Spire keeps the product's own amber look, shown as a product screen on either ground.
 
 ### Design system
 
@@ -119,7 +123,7 @@ Tokens are CSS custom properties in **`app/globals.css`**. `tailwind.config.js` 
 
 ### Accessibility
 
-WCAG 2.2 AA is the bar. Every scene, map and switch has a plain equivalent: the 3D canvases are decorative and their controls are real buttons; the evidence map's lines are decoration and every row names its evidence in words; the lens layers both show without JavaScript and in print. Focus is visible everywhere, moves where the eye does after a jump, and is trapped and returned by every overlay. Anything that moves for more than five seconds has a pause control.
+WCAG 2.2 AA is the bar. Every scene, map and switch has a plain equivalent: the 3D canvases are decorative and their controls are real buttons or links (the hero map's labels stay in the Tab order and the list a screen reader hears even when one is hidden to keep it off the headline); the evidence map's lines are decoration and every row names its evidence in words; the lens layers both show without JavaScript and in print. Focus is visible everywhere, moves where the eye does after a jump, and is trapped and returned by every overlay. Anything that moves for more than five seconds has a pause control.
 
 ### Performance budgets
 

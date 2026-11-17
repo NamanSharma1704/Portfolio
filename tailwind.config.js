@@ -35,7 +35,6 @@ module.exports = {
                 blueprint: {
                     DEFAULT: 'var(--blueprint-grid)',
                     construction: 'var(--blueprint-construction)',
-                    axis: 'var(--blueprint-axis)',
                 },
                 glass: 'var(--glass)',
                 veil: 'var(--veil)',

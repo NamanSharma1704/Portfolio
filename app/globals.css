@@ -65,7 +65,6 @@
      colour, not a second accent: it never fills a button. ---- */
   --blueprint-grid: #35506f;
   --blueprint-construction: rgba(53, 80, 111, 0.09);
-  --blueprint-axis: #14130f;
 
   /* ---- Fluid type scale (1.25 ratio, clamped) ---- */
   --text-2xs: 0.6875rem;
@@ -85,9 +84,8 @@
      column is 92vw at most, so 12vw keeps that line inside the gutters with
      a little to spare (7.33 x 12 = 88vw).
      The cap is set by the column, which stops widening at 76rem: at 7.75rem
-     the first line (6em) ends before the landscape caption at the top right,
-     and the second still fits. Without it a 2560px screen wrapped the
-     headline onto three lines (found 17 November 2026). */
+     both lines still fit. Without it a 2560px screen wrapped the headline
+     onto three lines (found 17 November 2026). */
   --text-display-wide: clamp(3rem, min(12vw, 11.5vh), 7.75rem);
 
   /* ---- Layout ---- */
@@ -153,7 +151,6 @@
 
   --blueprint-grid: #8fb1d4;
   --blueprint-construction: rgba(143, 177, 212, 0.08);
-  --blueprint-axis: #f2efe7;
 }
 
 /* Layered so Tailwind utilities can override these defaults. */
@@ -726,6 +723,187 @@ section[tabindex='-1']:focus,
   border-color: color-mix(in srgb, var(--blueprint-grid) 55%, transparent);
 }
 
+/* In the Build layer, note markers take the blueprint colour too. */
+.blueprint .note-marker {
+  border-color: var(--blueprint-grid);
+  color: var(--blueprint-grid);
+}
+
+/* ===========================================================================
+   ARCHITECTURE SCHEMATIC
+   A hub and four spokes, in the Build layer's line colour. Stacked on
+   narrow screens, where each spoke says in words how it meets the hub; from
+   1280px a cross with real lines, the words kept for screen readers.
+   =========================================================================== */
+
+.sch {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-areas: 'hub' 'browser' 'data' 'sources' 'jobs';
+}
+
+.sch-hub { grid-area: hub; }
+.sch-browser { grid-area: browser; }
+.sch-data { grid-area: data; }
+.sch-sources { grid-area: sources; }
+.sch-jobs { grid-area: jobs; }
+
+@media (min-width: 640px) {
+  .sch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'hub hub'
+      'browser data'
+      'sources jobs';
+  }
+}
+
+.sch-part {
+  position: relative;
+  padding: 1rem 2.5rem 1.125rem 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--blueprint-grid) 40%, transparent);
+  border-radius: var(--r-sm);
+  background: var(--paper-raised);
+}
+
+/* The one origin: a firmer line and a faint halo. */
+.sch-hub {
+  border-color: var(--blueprint-grid);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--blueprint-grid) 10%, transparent);
+}
+
+.sch-marker {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 1px solid var(--blueprint-grid);
+  border-radius: var(--r-full);
+  background: var(--paper-raised);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--blueprint-grid);
+}
+
+.sch-part > .sch-marker {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
+}
+
+/* How a spoke meets the hub, in words. */
+.sch-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed color-mix(in srgb, var(--blueprint-grid) 35%, transparent);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blueprint-grid);
+}
+
+.sch-line {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sch-notes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .sch {
+    gap: 0;
+    grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1.15fr) 3.5rem minmax(0, 1fr);
+    grid-template-rows: auto 3rem auto 3rem auto;
+    grid-template-areas:
+      '. . jobs . .'
+      '. . l-jobs . .'
+      'browser l-browser hub l-data data'
+      '. . l-sources . .'
+      '. . sources . .';
+  }
+
+  /* The lines say it now; the words stay, for screen readers only. */
+  .sch-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .sch-line {
+    position: relative;
+    display: block;
+    background: var(--blueprint-grid);
+  }
+
+  .sch-line-browser { grid-area: l-browser; }
+  .sch-line-data { grid-area: l-data; }
+  .sch-line-jobs { grid-area: l-jobs; }
+  .sch-line-sources { grid-area: l-sources; }
+
+  .sch-line-browser,
+  .sch-line-data {
+    align-self: center;
+    height: 1px;
+  }
+
+  .sch-line-jobs,
+  .sch-line-sources {
+    justify-self: center;
+    width: 1px;
+  }
+
+  /* Arrowheads: into the hub from the browser and the jobs; out of it to
+     the data and the sources. */
+  .sch-line::after {
+    content: '';
+    position: absolute;
+    border: 4px solid transparent;
+  }
+
+  .sch-line-browser::after,
+  .sch-line-data::after {
+    top: 50%;
+    right: -1px;
+    transform: translateY(-50%);
+    border-right-width: 0;
+    border-left: 7px solid var(--blueprint-grid);
+  }
+
+  .sch-line-jobs::after,
+  .sch-line-sources::after {
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-width: 0;
+    border-top: 7px solid var(--blueprint-grid);
+  }
+
+  .sch-line > .sch-marker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* ===========================================================================
    DECISION OPTIONS
    Each option in a decision opens to say why it was or was not chosen. They
@@ -864,27 +1042,92 @@ section[tabindex='-1']:focus,
 }
 
 /* ===========================================================================
-   LANDSCAPE STAGE
-   The hero's contour motif is a static SVG poster. Where 3D can run, the
-   scene is drawn over it and the two cross-fade once the first frame exists.
-   If the scene never arrives, or fails, the poster simply stays.
+   GROUND STAGE (the hero's map)
+   The contour drawing is the poster. Where 3D can run, the map is drawn over
+   it and the two cross-fade once the first frame exists; its labels are real
+   links in a layer above the text.
    =========================================================================== */
 
 .contour-poster,
-.landscape-canvas {
+.ground-canvas {
   transition: opacity var(--dur-4) var(--ease-out);
 }
 
-.landscape-canvas {
+.ground-canvas {
   opacity: 0;
 }
 
-[data-landscape='live'] .landscape-canvas {
+[data-ground='live'] .ground-canvas {
   opacity: 1;
 }
 
-[data-landscape='live'] .contour-poster {
+[data-ground='live'] .contour-poster {
   opacity: 0;
+}
+
+.ground-labels {
+  position: absolute;
+  inset: 0;
+}
+
+.ground-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--r-xs);
+  background: color-mix(in srgb, var(--paper) 84%, transparent);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-2);
+  /* Out of sight until placed, and while it would cover the hero's words; but
+     never out of the Tab order or the list a screen reader hears, and shown
+     whenever it has keyboard focus. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+
+.ground-label[data-shown],
+.ground-label:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ground-label:hover,
+.ground-label[data-active] {
+  color: var(--ink);
+  background: var(--paper-raised);
+  box-shadow: 0 0 0 1px var(--rule-strong);
+}
+
+/* How many skills: the number of rings under it. */
+.ground-label-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.ground-axis {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-3);
+  pointer-events: none;
 }
 
 /* ===========================================================================
