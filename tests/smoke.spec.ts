@@ -148,7 +148,11 @@ test.describe('without JavaScript', () => {
     test.use({ javaScriptEnabled: false });
 
     test('everything still reads', async ({ page }) => {
-        await page.goto('/');
+        // Without script, browsers drop lazy loading and fetch every image at
+        // once; on a cold image optimiser (a CI runner) the load event can take
+        // longer than the test. The text is all this checks, so wait for the
+        // document, not the images.
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
         // No script, no lens: both layers of each case study show.
         await expect(page.locator('[data-layer="business"]').first()).toBeVisible();
