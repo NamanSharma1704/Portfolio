@@ -355,7 +355,7 @@ export const STUDY: Study = {
     parts: [
         {
             head: 'The question',
-            body: 'Over ten years, Infosys changed how it chooses and removes its chief executives and senior managers. The dissertation asks where that change came from.',
+            body: 'Over ten years, Infosys changed how it chooses and removes its chief executives and senior managers, while the legal procedure for doing so, under the Companies Act 2013, stayed the same. The dissertation asks where that change came from.',
         },
         {
             head: 'The method',

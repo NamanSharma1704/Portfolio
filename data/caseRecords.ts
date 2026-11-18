@@ -84,11 +84,30 @@ export interface Schematic {
     notes: { title: string; text: string }[];
 }
 
+/**
+ * A value curve (strategy canvas): the product and the alternatives it was
+ * built against, scored on the factors that matter to its users. The scores
+ * are Naman's own assessment and the chart says so; none are written here
+ * until he gives them.
+ */
+export interface ValueCurve {
+    /** One line over the chart: what is scored and whose judgement it is. */
+    lead: string;
+    /** The lowest and highest score, both whole numbers. */
+    scale: [number, number];
+    /** In the order drawn, left to right. `note`: why the products score as they do on it. */
+    factors: { name: string; note?: string }[];
+    /** The product itself first (drawn in the accent), then the field. One score per factor. */
+    products: { name: string; scores: number[] }[];
+}
+
 export interface CaseRecord {
     business: {
         context: string;
         problem: { lead: string; points?: string[] };
         decisions: Decision[];
+        /** Where the product stands against the alternatives. */
+        curve?: ValueCurve;
         screen?: AnnotatedScreen;
         shipped: string[];
         outcome: string[];
@@ -157,6 +176,36 @@ const AKASHIC: CaseRecord = {
                 },
             },
         ],
+        // Naman's own scores and reasons (17 November 2026), as he gave them.
+        curve: {
+            lead: 'How The Akashic Records compares with what serial readers already use, scored from 1 to 5. The scores are my judgement, not a measurement; the reasons are under the chart.',
+            scale: [1, 5],
+            factors: [
+                {
+                    name: 'Frictionless logging',
+                    note: 'Akashic logs a chapter in one tap or one key, and asks what you read when you come back from your reading site. It still isn’t automatic, though: tools that log as you read, such as Tachiyomi or Mihon, would be the 5. AniList’s +1 on in-progress entries is quick; MyAnimeList and MangaUpdates take more clicks. A spreadsheet means finding the row and typing the number.',
+                },
+                {
+                    name: 'Release detection',
+                    note: 'MangaUpdates is built around release records. Akashic combines MangaUpdates with MangaDex and AniList and shows “+N new” on each series, but it checks every two hours and inherits the sources’ gaps: some licensed series are on none of them. So it scores level with MangaUpdates, not above. AniList and MyAnimeList don’t track new chapters of ongoing manga.',
+                },
+                {
+                    name: 'Habit progression',
+                    note: 'Akashic was built for this: EXP, ranks, daily and weekly quests, streaks, titles and a heatmap. AniList has detailed stats and an activity grid but no goals or streaks. MyAnimeList has basic stats. MangaUpdates and a spreadsheet have nothing built in.',
+                },
+                {
+                    name: 'Cataloguing depth',
+                    note: 'AniList and MyAnimeList have huge databases and rich list entries: notes, custom lists, start and finish dates, rereads and tags. MangaUpdates has a deep series database, including user-voted categories, but a plainer reading list. Akashic fills in covers, synopses and chapter totals and keeps a chapter history, but has no tags, notes or custom lists yet; the private notes and trope tags planned next would close part of that gap. A spreadsheet holds whatever you type and fills in nothing.',
+                },
+            ],
+            products: [
+                { name: 'The Akashic Records', scores: [4, 4, 5, 3] },
+                { name: 'AniList', scores: [3, 1, 2, 5] },
+                { name: 'MyAnimeList', scores: [2, 1, 1, 5] },
+                { name: 'MangaUpdates', scores: [2, 4, 1, 4] },
+                { name: 'A spreadsheet', scores: [2, 1, 1, 2] },
+            ],
+        },
         screen: {
             src: '/media/akashic/akashic-3.png',
             width: 1919,
@@ -526,3 +575,25 @@ export const CASE_RECORDS: Record<string, CaseRecord> = {
     'The Akashic Records': AKASHIC,
     Spenzy: SPENZY,
 };
+
+// A value curve that does not add up fails the build, rather than drawing a
+// line through a score that is not there.
+for (const [project, record] of Object.entries(CASE_RECORDS)) {
+    const curve = record.business.curve;
+    if (!curve) continue;
+    const [low, high] = curve.scale;
+    if (!Number.isInteger(low) || !Number.isInteger(high) || low >= high) {
+        throw new Error(`${project}: value curve scale must be two whole numbers, low then high`);
+    }
+    if (curve.products.length < 2) throw new Error(`${project}: a value curve needs the product and at least one alternative`);
+    for (const product of curve.products) {
+        if (product.scores.length !== curve.factors.length) {
+            throw new Error(`${project}: ${product.name} has ${product.scores.length} scores for ${curve.factors.length} factors`);
+        }
+        for (const score of product.scores) {
+            if (!Number.isInteger(score) || score < low || score > high) {
+                throw new Error(`${project}: ${product.name} scores ${score}, outside ${low} to ${high}`);
+            }
+        }
+    }
+}

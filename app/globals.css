@@ -31,6 +31,9 @@
   --accent-ink: #fbfaf6;
   --accent-wash: rgba(127, 45, 53, 0.06);
   --accent-wash-strong: rgba(127, 45, 53, 0.12);
+  /* The field on a value curve: a grey kept apart from the accent in lightness
+     (colour-blind separation 19.7, 3:1 on paper), checked with the dataviz validator. */
+  --curve-field: #8c8679;
 
   /* ---- Shadows: tinted with the ground hue, never pure black ---- */
   --shadow-sm: 0 1px 2px rgba(42, 34, 20, 0.05);
@@ -137,6 +140,7 @@
   --accent-ink: #14130f;
   --accent-wash: rgba(217, 134, 127, 0.08);
   --accent-wash-strong: rgba(217, 134, 127, 0.16);
+  --curve-field: #67625a;   /* colour-blind separation 16.5 from the accent, 3:1 on ink */
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -902,6 +906,308 @@ section[tabindex='-1']:focus,
     left: 50%;
     transform: translate(-50%, -50%);
   }
+}
+
+/* ===========================================================================
+   STUDY TIMELINE
+   The dissertation's evidence, year by year: a year axis with numbered
+   markers (from 768px), then the list that carries every word. The markers
+   are the same numbered rings as the margin notes.
+   =========================================================================== */
+
+.study-timeline {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--rule);
+}
+
+.tl-axis {
+  display: none;
+  margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+  .tl-axis {
+    display: block;
+  }
+}
+
+.tl-marks {
+  position: relative;
+  height: calc(var(--tl-levels) * 1.875rem + 1rem);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.tl-mark {
+  position: absolute;
+  bottom: calc(var(--tl-level) * 1.875rem + 0.625rem);
+  /* Lower markers sit over the stems of those stacked above them. */
+  z-index: calc(10 - var(--tl-level));
+  transform: translateX(-50%);
+  background: var(--paper-raised);
+  transition: background-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+/* A stem down to the axis, so a stacked marker still points at its date. */
+.tl-mark::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: calc(var(--tl-level) * 1.875rem + 0.625rem);
+  background: var(--rule-strong);
+}
+
+.tl-mark:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.tl-years {
+  display: grid;
+}
+
+.tl-years li {
+  padding-top: 0.5rem;
+  border-left: 1px solid var(--rule);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.tl-years li:first-child {
+  border-left: 0;
+}
+
+.tl-events {
+  display: grid;
+  gap: 1.75rem 3rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .tl-events {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tl-event {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: 1rem;
+  margin: -0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--r-xs);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+/* Where a marker on the axis lands: the jump moves focus here (the address
+   changes through history.pushState, which never updates :target). */
+.tl-event:focus {
+  outline: none;
+  background: var(--accent-wash);
+}
+
+/* The wash lowers contrast a little: the grey label steps up to stay above AA. */
+.tl-event:focus .tl-meta {
+  color: var(--ink-2);
+}
+
+.tl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.tl-meta time {
+  color: var(--accent);
+}
+
+/* ===========================================================================
+   VALUE CURVE
+   The product against the alternatives it was built against. The product is
+   the accent; the field is one grey, told apart by marker shape and the
+   legend. Lines are SVG in percentages, so they stretch with the column while
+   strokes and markers keep their size.
+   =========================================================================== */
+
+.curve-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 1.25rem;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.curve-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.curve-legend svg {
+  overflow: visible;
+  flex: none;
+}
+
+.curve-chart {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  grid-template-rows: clamp(11rem, 26vw, 15rem) auto;
+  margin-top: 1.5rem;
+  max-width: 44rem;
+}
+
+.curve-y {
+  position: relative;
+}
+
+.curve-y span {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.curve-plot {
+  position: relative;
+  border-left: 1px solid var(--rule);
+}
+
+.curve-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.curve-grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.curve-own-line,
+.curve-field-line {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.curve-own-line {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.curve-field-line {
+  stroke: var(--curve-field);
+  stroke-width: 1.5;
+}
+
+.curve-halo {
+  fill: var(--paper);
+}
+
+.curve-halo-stroke {
+  fill: var(--paper);
+  stroke: var(--paper);
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.curve-own-fill {
+  fill: var(--accent);
+}
+
+.curve-field-fill {
+  fill: var(--curve-field);
+}
+
+.curve-field-ring {
+  fill: var(--paper);
+  stroke: var(--curve-field);
+  stroke-width: 2;
+}
+
+.curve-x {
+  grid-column: 2;
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+/* Four spaced capitals in mono do not fit a phone's columns: plain text there. */
+@media (max-width: 639px) {
+  .curve-x {
+    gap: 0.25rem;
+    font-family: inherit;
+    font-size: var(--text-xs);
+    letter-spacing: 0;
+    text-transform: none;
+    hyphens: auto;
+  }
+}
+
+@media (max-width: 379px) {
+  .curve-x {
+    font-size: var(--text-2xs);
+  }
+}
+
+.curve-table {
+  margin-top: 1.25rem;
+}
+
+.curve-table summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.curve-table table {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.curve-table th,
+.curve-table td {
+  padding: 0.4rem 1rem 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.curve-table thead th {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.curve-table tbody th {
+  font-weight: 400;
+}
+
+.curve-table td {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 /* ===========================================================================

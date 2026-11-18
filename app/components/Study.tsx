@@ -1,6 +1,8 @@
 import { STUDY } from '../../data/resumeData';
+import { STUDY_TIMELINE } from '../../data/studyTimeline';
 import { STAGGER_MS } from '../../lib/constants';
 import Section from './Section';
+import StudyTimeline from './StudyTimeline';
 
 /**
  * Study: the MSc dissertation.
@@ -94,6 +96,9 @@ export default function Study() {
                     </figure>
                 </div>
             </div>
+
+            {/* --- The evidence, year by year --- */}
+            <StudyTimeline timeline={STUDY_TIMELINE} />
         </Section>
     );
 }

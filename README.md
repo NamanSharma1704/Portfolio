@@ -8,9 +8,9 @@ Live: https://portfolio-naman-17.vercel.app
 
 - **Hero**: the headline, one sentence and two actions, beside **"The ground I cover"**: Naman's own record as a 3D contour map. Every peak is a role, project or degree; business is to the left and build to the right (by the share of the skills it evidences that are tools); 2021 is at the back and now at the front (from the CV dates); each ring is one skill it evidences. Drag to turn it, point at a peak or Tab to its label to read what it was, choose it to jump to it. Every number comes from `data/ground.ts`, which computes them from the CV and the evidence map.
 - **Lens switch** (Business or Build) in the header, the phone menu and the head of Selected work. Business shows each project's problem, options and outcome; Build shows its stack and technical decisions. The choice is remembered, and `?lens=build` in the address opens the page in the Build view, so it can be shared as a link.
-- **Case studies as decision records**: Context, Problem, Decisions (every option opens to say why it was or was not chosen), What shipped, Outcome and Next, with an annotated product screen.
+- **Case studies as decision records**: Context, Problem, Decisions (every option opens to say why it was or was not chosen), What shipped, Outcome and Next, with an annotated product screen. The Akashic Records adds a **value curve**: the app against AniList, MyAnimeList, MangaUpdates and a spreadsheet on four factors, scored by Naman and labelled as his judgement, with the reasons and a table of the scores under it. In the Build lens it adds an **architecture schematic** with a numbered reason for each part.
 - **The Divine Spire, live**: The Akashic Records' own 3D library view, ported from its code. A still until the visitor presses Start; then it runs, with a floor list beside it that drives it from the keyboard.
-- **Study**: the MSc dissertation.
+- **Study**: the MSc dissertation, with "The record, year by year": the events it rests on from 2013 to 2025, each with the document it cites, on a year axis (from 768px) and as a list.
 - **Experience** as a timeline.
 - **Capabilities as an evidence map**: every skill points to the roles, projects and degrees where it was used, with lines between them on wide screens. A skill with nothing to point to says so.
 - **Quick actions**: Ctrl+K (Cmd+K on a Mac), or the buttons in the header and footer, to jump anywhere, copy the email address, open LinkedIn, download the CV, or switch the lens or the ground.
@@ -58,6 +58,7 @@ Nothing is written into the components. Content lives in `data/`:
 | `caseRecords.ts` | Each project as a decision record, in its Business and Build layers |
 | `evidence.ts` | Which roles, projects and degrees evidence each skill, and why. The build fails if a link names something that does not exist |
 | `ground.ts` | The hero map's peaks, computed from the CV dates and the evidence map. Nothing to edit by hand: it follows the other files. Two dates are not in the CV and are placed from the case records (The Akashic Records now, Spenzy about three years back) |
+| `studyTimeline.ts` | The Study timeline's events, from the dissertation, each with the document it cites. Read only on the server; the build fails on a date in the wrong form, outside the axis or out of order |
 | `spireFloors.ts` | The Spire's nine floors, ported from the app |
 | `commands.ts` | Everything quick actions can do, built from the other files |
 

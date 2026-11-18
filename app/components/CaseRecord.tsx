@@ -7,6 +7,7 @@ import type {
     Decision,
     NextSteps as NextStepsData,
     Schematic as SchematicData,
+    ValueCurve as ValueCurveData,
     SchematicSpoke,
 } from '../../data/caseRecords';
 import { Annotation, AnnotationList } from './Annotation';
@@ -267,6 +268,199 @@ function Next({ next }: { next: NextStepsData }) {
     );
 }
 
+/* --- Value curve ----------------------------------------------------------- */
+
+/** The field's marks, in a fixed order: identity is the shape as well as the legend, never colour alone. */
+const FIELD_SHAPES = ['square', 'diamond', 'triangle', 'ring'] as const;
+type CurveShape = 'own' | (typeof FIELD_SHAPES)[number];
+
+const SHAPE_PATHS: Record<'square' | 'diamond' | 'triangle', string> = {
+    square: 'M-4 -4H4V4H-4Z',
+    diamond: 'M0 -5.5L5.5 0L0 5.5L-5.5 0Z',
+    triangle: 'M0 -5.2L5 3.8H-5Z',
+};
+
+/** One marker, centred on 0,0, with a ring of the ground round it so it reads where lines cross. */
+function CurveMark({ shape }: { shape: CurveShape }) {
+    if (shape === 'own') {
+        return (
+            <>
+                <circle r={7.5} className="curve-halo" />
+                <circle r={5.5} className="curve-own-fill" />
+            </>
+        );
+    }
+    if (shape === 'ring') {
+        return (
+            <>
+                <circle r={6.5} className="curve-halo" />
+                <circle r={4} className="curve-field-ring" />
+            </>
+        );
+    }
+    return (
+        <>
+            <path d={SHAPE_PATHS[shape]} className="curve-halo-stroke" />
+            <path d={SHAPE_PATHS[shape]} className="curve-field-fill" />
+        </>
+    );
+}
+
+/**
+ * The product and the alternatives it was built against, scored on the
+ * factors its users care about: a value curve, or strategy canvas. The
+ * product is the accent line; the field is one grey, told apart by shape and
+ * the legend. Server-drawn SVG, so it needs no script and prints; the scores
+ * are also a table.
+ */
+function ValueCurve({ curve }: { curve: ValueCurveData }) {
+    const [low, high] = curve.scale;
+    const count = curve.factors.length;
+    const ticks = Array.from({ length: high - low + 1 }, (_, i) => high - i);
+    // Inset top and bottom, so a top or bottom score's marker is not cut.
+    const PAD = 8;
+    const x = (i: number) => ((i + 0.5) / count) * 100;
+    const y = (score: number) => PAD + (1 - (score - low) / (high - low)) * (100 - 2 * PAD);
+    const shapeOf = (index: number): CurveShape =>
+        index === 0 ? 'own' : FIELD_SHAPES[(index - 1) % FIELD_SHAPES.length];
+
+    // Where products tie on a factor, their markers sit side by side rather
+    // than on top of each other. The lines still meet the true point.
+    const nudge = curve.products.map((product, p) =>
+        product.scores.map((score, f) => {
+            const tied = curve.products
+                .map((other, q) => (other.scores[f] === score ? q : -1))
+                .filter((q) => q >= 0);
+            return (tied.indexOf(p) - (tied.length - 1) / 2) * 12;
+        })
+    );
+    // The field first, so the product's line is drawn over it.
+    const order = [...curve.products.keys()].slice(1).concat(0);
+    const summary = `Value curve: ${curve.products.map((p) => p.name).join(', ')}, scored from ${low} to ${high} on ${curve.factors
+        .map((f) => f.name.toLowerCase())
+        .join(', ')}. The scores are in the table that follows.`;
+    const notes = curve.factors.filter((f) => f.note).map((f) => `${f.name}: ${f.note}`);
+
+    return (
+        <figure className="curve">
+            <p className={PROSE}>{curve.lead}</p>
+
+            <ul className="curve-legend">
+                {curve.products.map((product, i) => (
+                    <li key={product.name}>
+                        <svg width="30" height="16" aria-hidden="true">
+                            <line
+                                x1="0"
+                                y1="8"
+                                x2="30"
+                                y2="8"
+                                className={i === 0 ? 'curve-own-line' : 'curve-field-line'}
+                            />
+                            <g transform="translate(15 8)">
+                                <CurveMark shape={shapeOf(i)} />
+                            </g>
+                        </svg>
+                        <span className={i === 0 ? 'text-ink' : undefined}>{product.name}</span>
+                    </li>
+                ))}
+            </ul>
+
+            <div className="curve-chart" role="img" aria-label={summary}>
+                <div className="curve-y" aria-hidden="true">
+                    {ticks.map((tick) => (
+                        <span key={tick} style={{ top: `${y(tick)}%` }}>
+                            {tick}
+                        </span>
+                    ))}
+                </div>
+                <div className="curve-plot">
+                    <svg className="curve-svg" aria-hidden="true">
+                        {ticks.map((tick) => (
+                            <line
+                                key={tick}
+                                x1="0"
+                                x2="100%"
+                                y1={`${y(tick)}%`}
+                                y2={`${y(tick)}%`}
+                                className="curve-grid"
+                            />
+                        ))}
+                        {order.map((p) => (
+                            <g key={curve.products[p].name}>
+                                {curve.products[p].scores.slice(1).map((score, f) => (
+                                    <line
+                                        key={f}
+                                        x1={`${x(f)}%`}
+                                        y1={`${y(curve.products[p].scores[f])}%`}
+                                        x2={`${x(f + 1)}%`}
+                                        y2={`${y(score)}%`}
+                                        className={p === 0 ? 'curve-own-line' : 'curve-field-line'}
+                                    />
+                                ))}
+                            </g>
+                        ))}
+                        {order.map((p) =>
+                            curve.products[p].scores.map((score, f) => (
+                                <svg key={`${p}-${f}`} x={`${x(f)}%`} y={`${y(score)}%`} overflow="visible">
+                                    <g transform={`translate(${nudge[p][f]} 0)`}>
+                                        <title>{`${curve.products[p].name}, ${curve.factors[f].name}: ${score} of ${high}`}</title>
+                                        <CurveMark shape={shapeOf(p)} />
+                                    </g>
+                                </svg>
+                            ))
+                        )}
+                    </svg>
+                </div>
+                <ol
+                    className="curve-x"
+                    aria-hidden="true"
+                    style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
+                >
+                    {curve.factors.map((factor) => (
+                        <li key={factor.name}>{factor.name}</li>
+                    ))}
+                </ol>
+            </div>
+
+            <details className="curve-table">
+                <summary className="label">The scores as a table</summary>
+                <div className="mt-3 overflow-x-auto">
+                    <table>
+                        <caption className="sr-only">{`Scores from ${low} to ${high}, by factor`}</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Factor</th>
+                                {curve.products.map((product) => (
+                                    <th key={product.name} scope="col">
+                                        {product.name}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {curve.factors.map((factor, f) => (
+                                <tr key={factor.name}>
+                                    <th scope="row">{factor.name}</th>
+                                    {curve.products.map((product) => (
+                                        <td key={product.name}>{product.scores[f]}</td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            {notes.length > 0 && (
+                <div className="mt-6">
+                    <p className="label mb-3">Why each factor scores as it does</p>
+                    <Points items={notes} named />
+                </div>
+            )}
+        </figure>
+    );
+}
+
 // ─── THE RECORD ────────────────────────────────────────────────────────────────
 
 export default function CaseRecord({ record }: { record: CaseRecordData }) {
@@ -292,6 +486,12 @@ export default function CaseRecord({ record }: { record: CaseRecordData }) {
                 <Row title="Decisions">
                     <Decisions decisions={business.decisions} />
                 </Row>
+
+                {business.curve && (
+                    <Row title="Value curve">
+                        <ValueCurve curve={business.curve} />
+                    </Row>
+                )}
 
                 {business.screen && (
                     <Row title="On screen">
