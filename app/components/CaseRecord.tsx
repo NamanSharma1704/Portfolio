@@ -4,6 +4,7 @@ import { CaretDown } from '@phosphor-icons/react/dist/ssr/CaretDown';
 import type {
     AnnotatedScreen,
     CaseRecord as CaseRecordData,
+    Figure,
     Decision,
     NextSteps as NextStepsData,
     Schematic as SchematicData,
@@ -461,6 +462,29 @@ function ValueCurve({ curve }: { curve: ValueCurveData }) {
     );
 }
 
+/* --- Figures ------------------------------------------------------------- */
+
+/**
+ * The record's numbers, first, for the reader who skims: the same strip as
+ * the facts under the hero, figure above label. A term-and-values list, so a
+ * screen reader hears "Series catalogued: 92, November 2026".
+ */
+function Figures({ figures }: { figures: Figure[] }) {
+    return (
+        <dl className="record-figures">
+            {figures.map((figure) => (
+                <div key={figure.label}>
+                    <dt className="order-2 mt-2 text-sm leading-snug text-ink-2">{figure.label}</dt>
+                    <dd className="order-1 font-display figure-num text-[clamp(2rem,4vw,2.75rem)] leading-none text-ink">
+                        {figure.value}
+                    </dd>
+                    {figure.detail && <dd className="label order-3 mt-1 !tracking-[0.08em]">{figure.detail}</dd>}
+                </div>
+            ))}
+        </dl>
+    );
+}
+
 // ─── THE RECORD ────────────────────────────────────────────────────────────────
 
 export default function CaseRecord({ record }: { record: CaseRecordData }) {
@@ -470,6 +494,12 @@ export default function CaseRecord({ record }: { record: CaseRecordData }) {
         <>
             {/* --- Business: the problem, the options, the outcome --- */}
             <div data-layer="business" className="space-y-10">
+                {business.figures && (
+                    <Row title="In figures">
+                        <Figures figures={business.figures} />
+                    </Row>
+                )}
+
                 <Row title="Context">
                     <p className={PROSE}>{business.context}</p>
                 </Row>
@@ -519,6 +549,12 @@ export default function CaseRecord({ record }: { record: CaseRecordData }) {
                 data-layer="build"
                 className="blueprint space-y-10 p-[clamp(1.25rem,3vw,2.25rem)]"
             >
+                {build.figures && (
+                    <Row title="In figures">
+                        <Figures figures={build.figures} />
+                    </Row>
+                )}
+
                 <Row title="Built with">
                     <p className="prose-measure text-base leading-relaxed text-ink">
                         {build.summary}

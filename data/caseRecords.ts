@@ -101,8 +101,21 @@ export interface ValueCurve {
     products: { name: string; scores: number[] }[];
 }
 
+/**
+ * One figure in a record's strip. Only numbers the record already states,
+ * counted from the product or its tests; never a rating or an estimate.
+ */
+export interface Figure {
+    value: string;
+    label: string;
+    /** As of when, or how it is counted. */
+    detail?: string;
+}
+
 export interface CaseRecord {
     business: {
+        /** The record's numbers, read first. Omitted where there are none. */
+        figures?: Figure[];
         context: string;
         problem: { lead: string; points?: string[] };
         decisions: Decision[];
@@ -114,6 +127,7 @@ export interface CaseRecord {
         next?: NextSteps;
     };
     build: {
+        figures?: Figure[];
         summary: string;
         stack: { part: string; detail: string }[];
         /** How the parts connect, drawn, with the reason for each part. */
@@ -130,6 +144,14 @@ export interface CaseRecord {
 
 const AKASHIC: CaseRecord = {
     business: {
+        // All four are stated below: the outcome, the screen notes and the
+        // first decision (one tap, three sources checked for new chapters).
+        figures: [
+            { value: '92', label: 'Series catalogued', detail: 'November 2026' },
+            { value: '24', label: 'Of them finished', detail: 'Counted from the archive' },
+            { value: '1', label: 'Tap to log a chapter', detail: 'Or one key' },
+            { value: '3', label: 'Sources checked for new chapters', detail: 'AniList, MangaDex, MangaUpdates' },
+        ],
         context:
             'A tracker for readers of serialised web comics. A manhwa is a moving target: a chapter or two a week, on a different day for each series, read across several sites, often for years, with long breaks between seasons.',
         problem: {
@@ -271,6 +293,13 @@ const AKASHIC: CaseRecord = {
         },
     },
     build: {
+        // From the stack and the outcome below.
+        figures: [
+            { value: '189', label: 'Automated API checks' },
+            { value: '14', label: 'Browser smoke tests' },
+            { value: '4', label: 'Outside data sources', detail: 'All through the server' },
+            { value: '2 h', label: 'Life of a guest sandbox', detail: 'Then deleted' },
+        ],
         summary: 'A React front end and an Express API, deployed together on Vercel. Two 3D scenes in raw Three.js.',
         stack: [
             { part: 'Front end', detail: 'React 18 with TypeScript, Vite, Tailwind CSS and Motion. Raw Three.js for the Spire.' },

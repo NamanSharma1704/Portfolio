@@ -1033,6 +1033,47 @@ section[tabindex='-1']:focus,
 }
 
 /* ===========================================================================
+   RECORD FIGURES
+   A case record's numbers, read first: the fact strip's language (display
+   figure over its label) at the head of each layer. Two across on phones,
+   four from 1024px, hairlines between.
+   =========================================================================== */
+
+.record-figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+}
+
+.record-figures > div {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1.25rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.record-figures > div:nth-child(even) {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--rule);
+}
+
+@media (min-width: 1024px) {
+  .record-figures {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .record-figures > div {
+    border-bottom: 0;
+  }
+
+  .record-figures > div + div {
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--rule);
+  }
+}
+
+/* ===========================================================================
    VALUE CURVE
    The product against the alternatives it was built against. The product is
    the accent; the field is one grey, told apart by marker shape and the
