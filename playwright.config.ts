@@ -37,7 +37,16 @@ export default defineConfig({
     },
     projects: [
         { name: 'chrome', use: { ...devices['Desktop Chrome'], ...chrome } },
-        { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        {
+            name: 'firefox',
+            use: {
+                ...devices['Desktop Firefox'],
+                // Playwright's Firefox (branded "Nightly") otherwise adds a
+                // "Nightly Private Browsing" shortcut to the Windows Start
+                // menu on its first run; this tells it one already exists.
+                launchOptions: { firefoxUserPrefs: { 'browser.privacySegmentation.createdShortcut': true } },
+            },
+        },
         { name: 'webkit', use: { ...devices['Desktop Safari'] } },
         { name: 'phone', use: { ...devices['Pixel 7'], ...chrome } },
         { name: 'iphone', use: { ...devices['iPhone 15'] } },
